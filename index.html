@@ -3,59 +3,1498 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WICK BRIDGE — coming soon</title>
+<title>WICK BRIDGE</title>
 <meta name="theme-color" content="#eef1f0">
-<meta name="description" content="WICK BRIDGE — PulseChain ⇄ Ethereum. Not live yet.">
-<meta name="robots" content="noindex">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 46'%3E%3Cpath d='M15 2 C19 8 21 11 21 14.5 A6 6 0 0 1 9 14.5 C9 11 11 8 15 2 Z' fill='%2300c26f'/%3E%3Crect x='7' y='21' width='16' height='22' rx='2' fill='%230f2a0f' stroke='%23143914'/%3E%3C/svg%3E">
+<meta property="og:title" content="WICK BRIDGE">
+<meta property="og:description" content="Safe passage PulseChain ⇄ Ethereum. 2% toll — half to the war chest, half buys & burns WICK. Optional stealth privacy.">
+<meta name="description" content="WICK BRIDGE — lock on PulseChain, claim on Ethereum. Express crossings in seconds.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 46'%3E%3Cpath d='M15 2 C19 8 21 11 21 14.5 A6 6 0 0 1 9 14.5 C9 11 11 8 15 2 Z' fill='%2339ff14'/%3E%3Crect x='14' y='16' width='2' height='5' fill='%238a7223'/%3E%3Crect x='7' y='21' width='16' height='22' rx='2' fill='%230f2a0f' stroke='%23143914'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<script type="importmap">
+{ "imports": {
+  "@noble/hashes/crypto": "./vendor/@noble/hashes/crypto.js",
+  "@noble/hashes/sha256": "./vendor/@noble/hashes/sha256.js",
+  "@noble/hashes/sha3": "./vendor/@noble/hashes/sha3.js",
+  "@noble/hashes/hmac": "./vendor/@noble/hashes/hmac.js",
+  "@noble/hashes/utils": "./vendor/@noble/hashes/utils.js"
+}}
+</script>
+<script type="module">
+  // expose the stealth crypto to the main (non-module) script
+  import * as Stealth from './stealth.js';
+  window.Stealth = Stealth;
+  window.dispatchEvent(new Event('stealth-ready'));
+</script>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23070a07'/%3E%3Cg transform='translate(75 45) scale(2)'%3E%3Cpath d='M15 2 C19 8 21 11 21 14.5 A6 6 0 0 1 9 14.5 C9 11 11 8 15 2 Z' fill='%2339ff14'/%3E%3Crect x='7' y='21' width='16' height='22' rx='2' fill='%230f2a0f' stroke='%23143914'/%3E%3C/g%3E%3C/svg%3E">
 <style>
-  :root{
-    --bg:#eef1f0; --surface:#fff; --line:#e3eae7; --txt:#0c1a13;
-    --muted:#5f6f68; --faint:#8a9b93; --mint:#00c26f; --mint-soft:#00a75f;
-    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI Variable Display","Segoe UI",Inter,system-ui,sans-serif;
-    --mono:"SF Mono","Cascadia Mono",ui-monospace,Consolas,monospace;
+  :root {
+    --bg: #eef1f0;
+    --surface: #ffffff;
+    --surface-2: #f5f8f7;
+    --line: #e3eae7;
+    --line-strong: #d0dbd6;
+    --txt: #0c1a13;
+    --muted: #5f6f68;
+    --faint: #8a9b93;
+    --neon: #00c26f;
+    --neon-soft: #00a75f;
+    --gold: #c2922a;
+    --gold-dim: #9a7b28;
+    --hot: #e5484d;
+    --mint-tint: #e7f6ef;
+    --gold-tint: #f6efdc;
+    --r-lg: 20px;
+    --r-md: 13px;
+    --r-sm: 10px;
+    --shadow: 0 6px 26px rgba(12,26,19,.07);
+    --shadow-lg: 0 22px 60px rgba(12,26,19,.12);
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", Inter, system-ui, sans-serif;
+    --mono: "SF Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{color-scheme:light}
-  body{background:var(--bg);color:var(--txt);font:16px/1.6 var(--sans);
-    -webkit-font-smoothing:antialiased;min-height:100vh;display:grid;place-items:center;padding:24px;
-    background-image:radial-gradient(900px 460px at 50% -10%,rgba(0,194,111,.07),transparent 62%)}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;
-    box-shadow:0 22px 60px rgba(12,26,19,.10);max-width:560px;width:100%;padding:clamp(28px,5vw,44px);text-align:center}
-  .mark{width:44px;height:44px;margin:0 auto 20px;display:block}
-  .flame{transform-origin:15px 16px;animation:flick 1.15s infinite}
-  @keyframes flick{0%,100%{transform:scale(1)}23%{transform:scale(.93,1.07)}48%{transform:scale(1.04,.95)}72%{transform:scale(.96,1.08)}}
-  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:650;
-    color:var(--mint-soft);background:#e7f6ef;border:1px solid #cdeade;border-radius:100px;padding:6px 14px;margin-bottom:20px}
-  h1{font-size:clamp(26px,4.4vw,36px);line-height:1.1;letter-spacing:-.025em;font-weight:800;margin-bottom:14px;text-wrap:balance}
-  p{color:var(--muted);font-size:15.5px;max-width:44ch;margin:0 auto 10px}
-  .soon{margin-top:26px;padding-top:22px;border-top:1px solid var(--line);
-    font:500 12.5px var(--mono);color:var(--faint);letter-spacing:.02em}
-  .soon a{color:var(--mint-soft);text-decoration:none;border-bottom:1px solid #cdeade}
-  @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { color-scheme: light; }
+  body {
+    background: var(--bg); color: var(--txt);
+    font: 15px/1.55 var(--sans);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh; padding-bottom: 80px;
+    background-image:
+      radial-gradient(900px 460px at 50% -10%, rgba(0,194,111,.06), transparent 62%);
+  }
+  #embers { display: none; }
+  header, main, .footer { position: relative; z-index: 1; }
+
+  /* ---------- header ---------- */
+  header {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 13px 28px;
+    background: rgba(238,241,240,.82);
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .candle { width: 24px; height: 36px; filter: drop-shadow(0 2px 6px rgba(0,194,111,.28)); }
+  .candle .flame { transform-origin: 15px 16px; animation: flick 1.15s infinite; }
+  @keyframes flick {
+    0%,100% { transform: scale(1) skewX(0deg); opacity: 1; }
+    23% { transform: scale(.93,1.07) skewX(-3deg); opacity: .93; }
+    48% { transform: scale(1.04,.95) skewX(2deg); }
+    72% { transform: scale(.96,1.08) skewX(-2deg); opacity: .96; }
+  }
+  h1 {
+    font-size: 17px; font-weight: 750; letter-spacing: -.01em; color: var(--txt);
+  }
+  .sub { font-size: 10px; letter-spacing: .18em; color: var(--faint); font-weight: 600; margin-top: 1px; }
+  .spacer { flex: 1; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    border: 1px solid var(--line); border-radius: 100px;
+    padding: 6px 13px; font-size: 12.5px; font-weight: 500;
+    background: var(--surface); color: var(--muted); white-space: nowrap;
+  }
+  .pill b { color: var(--txt); font-weight: 650; font-family: var(--mono); font-size: 11.5px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--hot); transition: all .3s; }
+  .dot.on { background: var(--neon); box-shadow: 0 0 0 3px rgba(0,194,111,.18); }
+
+  button {
+    font: 600 14px/1 var(--sans); color: var(--txt);
+    background: var(--surface); border: 1px solid var(--line);
+    padding: 10px 18px; border-radius: 100px; cursor: pointer;
+    transition: all .18s cubic-bezier(.4,0,.2,1);
+  }
+  button:hover:not(:disabled) { border-color: var(--line-strong); background: #eef3f1; transform: translateY(-1px); }
+  button:active:not(:disabled) { transform: translateY(0) scale(.98); }
+  button:disabled { opacity: .45; cursor: default; }
+  button:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,194,111,.28); }
+
+  #btnConnect {
+    background: var(--neon); border-color: var(--neon); color: #043524;
+    box-shadow: 0 6px 18px rgba(0,194,111,.28);
+  }
+  #btnConnect:hover { background: var(--neon-soft); box-shadow: 0 8px 22px rgba(0,194,111,.35); }
+
+  /* ---------- info strip + excomm ---------- */
+  .strip {
+    display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
+    padding: 9px 20px; font-size: 12px; letter-spacing: .04em; font-weight: 600;
+    color: var(--gold-dim); background: var(--gold-tint);
+    border-bottom: 1px solid #ecdfbf;
+  }
+  .strip .quiet { color: var(--faint); letter-spacing: .03em; font-weight: 500; }
+  #excomm {
+    display: none; text-align: center; padding: 12px 20px;
+    background: #fdecec; border-bottom: 1px solid #f6c9c9;
+    color: var(--hot); font-weight: 800; letter-spacing: .22em; font-size: 13px;
+    animation: excommPulse 2.2s infinite;
+  }
+  @keyframes excommPulse { 50% { background: #fbdede; } }
+
+  main { max-width: 660px; margin: 30px auto 0; padding: 0 20px; }
+
+  /* ---------- hero ---------- */
+  .hero { text-align: center; margin-bottom: 26px; }
+  .hero .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 650; letter-spacing: .02em;
+    color: var(--neon-soft); background: var(--mint-tint);
+    border: 1px solid #cdeade; border-radius: 100px; padding: 6px 14px;
+  }
+  .hero h2 {
+    font-size: 32px; line-height: 1.08; letter-spacing: -.025em; font-weight: 800;
+    margin: 16px auto 10px; max-width: 17ch; text-wrap: balance; color: var(--txt);
+  }
+  .hero h2 .g { color: var(--neon-soft); }
+  .hero p { font-size: 15.5px; color: var(--muted); max-width: 48ch; margin: 0 auto; line-height: 1.6; }
+
+  /* ---------- trust row ---------- */
+  .trustrow { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px 12px; margin: 20px auto 30px; }
+  .trustrow span {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500;
+    color: var(--muted); background: var(--surface); border: 1px solid var(--line);
+    border-radius: 100px; padding: 7px 13px;
+  }
+  .trustrow b { color: var(--txt); font-weight: 650; }
+  .trustrow .tick { color: var(--neon-soft); font-weight: 800; }
+
+  /* ---------- stat cards ---------- */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 4px 0 8px; }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--line); border-radius: var(--r-md);
+    padding: 15px 16px 13px; box-shadow: var(--shadow);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .stat .k {
+    font-size: 10.5px; font-weight: 650; letter-spacing: .06em; color: var(--faint);
+    text-transform: uppercase; margin-bottom: 7px;
+  }
+  .stat .v {
+    font-family: var(--mono); font-size: 21px; font-weight: 700; color: var(--txt);
+    font-variant-numeric: tabular-nums; line-height: 1.1;
+  }
+  .stat .v small { font-size: 12px; color: var(--muted); font-weight: 600; margin-left: 3px; }
+  .stat.fire { border-color: #ecdfbf; background: var(--gold-tint); }
+  .stat.fire .v { color: var(--gold); }
+
+  /* ---------- bridge card ---------- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line); border-radius: var(--r-lg);
+    padding: 20px; box-shadow: var(--shadow-lg);
+  }
+  .seg {
+    position: relative; display: flex; background: var(--surface-2);
+    border: 1px solid var(--line); border-radius: var(--r-md); padding: 4px; margin-bottom: 20px;
+  }
+  .seg button {
+    flex: 1; background: none; border: none; border-radius: 10px;
+    padding: 11px 0; color: var(--muted); font-weight: 650; letter-spacing: .02em;
+    position: relative; z-index: 1; transition: color .25s;
+  }
+  .seg button:hover { transform: none; background: none; }
+  .seg button.active { color: #043524; }
+  .seg-thumb {
+    position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px);
+    background: var(--neon);
+    border-radius: 10px; box-shadow: 0 4px 14px rgba(0,194,111,.3);
+    transition: transform .3s cubic-bezier(.55,.06,.28,1.2);
+  }
+  .seg-thumb.right { transform: translateX(100%); }
+
+  /* ---------- send / receive legs (ChangeNOW-style) ---------- */
+  .leg { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px 16px; }
+  .leg-cap-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .leg-cap { font-size: 12px; font-weight: 650; letter-spacing: .01em; color: var(--faint); }
+  .leg-chain { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+  .leg .radio { margin-bottom: 12px; }
+  .leg .chips { margin-top: 8px; }
+  .leg .amount-wrap input { background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 4px 78px 4px 2px; font: 700 27px var(--mono); }
+  .leg .amount-wrap input:focus { background: var(--surface); border-color: var(--line); box-shadow: 0 0 0 3px rgba(0,194,111,.12); }
+  .leg-net { font: 700 27px var(--mono); color: var(--txt); font-variant-numeric: tabular-nums; letter-spacing: -.01em; min-height: 34px; display: flex; align-items: center; }
+  .leg-net.muted { color: var(--faint); font-weight: 600; font-size: 16px; }
+  .swapmid { display: flex; justify-content: center; margin: -11px 0; position: relative; z-index: 2; }
+  .swapmid button { width: 38px; height: 38px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); color: var(--neon-soft); font-size: 17px; cursor: pointer; display: grid; place-items: center; padding: 0; }
+  .swapmid button:hover:not(:disabled) { transform: translateY(-1px); background: #eef3f1; }
+  .field.recip { margin-top: 16px; }
+
+  .field { margin-bottom: 15px; }
+  label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--faint); margin-bottom: 8px;
+  }
+  .chip {
+    display: inline-block; border: 1px solid #ecdfbf; color: var(--gold-dim); background: var(--gold-tint);
+    border-radius: 100px; padding: 2px 10px; font-size: 10.5px; letter-spacing: .04em; font-weight: 650;
+  }
+  input[type=text] {
+    width: 100%; background: var(--surface-2); border: 1px solid var(--line);
+    color: var(--txt); padding: 13px 15px; font: 500 15px var(--sans);
+    border-radius: var(--r-md); transition: border-color .2s, box-shadow .2s, background .2s;
+  }
+  input[type=text]::placeholder { color: var(--faint); }
+  input[type=text]:focus {
+    outline: none; border-color: var(--neon); background: var(--surface);
+    box-shadow: 0 0 0 4px rgba(0,194,111,.12);
+  }
+  .amount-wrap { position: relative; }
+  .amount-wrap input { font: 700 22px var(--mono); padding: 15px 76px 15px 15px; font-variant-numeric: tabular-nums; }
+  .amount-wrap .max {
+    position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+    padding: 7px 13px; font-size: 11.5px; letter-spacing: .06em; font-weight: 700;
+    color: var(--neon-soft); background: var(--mint-tint); border-color: #cdeade;
+  }
+  .amount-wrap .max:hover:not(:disabled) { transform: translateY(-50%); background: #d9f2e6; }
+  .radio { display: flex; gap: 8px; margin-bottom: 10px; }
+  .radio label {
+    flex: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    text-transform: none; letter-spacing: 0; font: 500 13.5px var(--sans); color: var(--txt);
+    border: 1px solid var(--line); border-radius: 100px; padding: 8px 16px; margin: 0;
+    background: var(--surface); transition: all .18s;
+  }
+  .radio label:has(input:checked) {
+    border-color: var(--neon); background: var(--mint-tint); color: var(--neon-soft);
+  }
+  .radio input { accent-color: var(--neon); width: 0; height: 0; opacity: 0; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .chips button { padding: 7px 14px; font-size: 12.5px; border-radius: 100px; color: var(--txt); background: var(--surface-2); }
+  .hint { font-size: 12.5px; color: var(--muted); margin-top: 7px; min-height: 17px; }
+  .hint.gold { color: var(--gold-dim); font-weight: 500; }
+  .err-hint { color: var(--hot) !important; }
+
+  .actions { display: flex; gap: 12px; margin-top: 20px; }
+  .cta {
+    flex: 1; padding: 16px 20px; border: none; border-radius: var(--r-md);
+    font: 800 15px var(--sans); letter-spacing: .01em;
+    background: var(--neon); color: #043524;
+    box-shadow: 0 10px 26px rgba(0,194,111,.3);
+    transition: all .2s cubic-bezier(.4,0,.2,1);
+  }
+  .cta:hover:not(:disabled) { background: var(--neon-soft); box-shadow: 0 14px 32px rgba(0,194,111,.4); transform: translateY(-2px); }
+  .cta:active:not(:disabled) { transform: translateY(0) scale(.99); }
+  .cta.ghost {
+    flex: none; background: var(--surface); color: var(--txt);
+    border: 1px solid var(--line-strong); box-shadow: none;
+  }
+  .cta.ghost:hover:not(:disabled) { background: #eef3f1; box-shadow: none; }
+  .toll-note {
+    margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line);
+    font-size: 11.5px; color: var(--faint); letter-spacing: .02em;
+    display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  }
+  .toll-note b { color: var(--gold-dim); font-weight: 650; }
+
+  /* ---------- markers ---------- */
+  .markers { margin-top: 34px; }
+  .markers h2 {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 12px; font-weight: 700; letter-spacing: .12em; color: var(--faint);
+    text-transform: uppercase; margin-bottom: 14px;
+  }
+  .markers h2::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .tx {
+    display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+    background: var(--surface);
+    border: 1px solid var(--line); border-radius: var(--r-md);
+    padding: 14px 18px; margin-bottom: 10px; box-shadow: var(--shadow);
+    transition: border-color .25s, transform .25s;
+  }
+  .tx:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+  .tx .coin { font-size: 16px; color: var(--gold); }
+  .tx .dir { font: 650 12px var(--sans); letter-spacing: .04em; color: var(--neon-soft); white-space: nowrap; }
+  .tx .amt { font: 700 15px var(--mono); font-variant-numeric: tabular-nums; color: var(--txt); }
+  .tx .addr, .tx .ago { font: 500 12px var(--mono); color: var(--faint); }
+  .tx a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--line-strong); transition: color .15s; }
+  .tx a:hover { color: var(--neon-soft); }
+  .tx .stat-cell { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; letter-spacing: .06em;
+    border-radius: 100px; padding: 5px 12px;
+  }
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .badge.done { color: #0a8f52; background: var(--mint-tint); }
+  .badge.wait { color: var(--gold-dim); background: var(--gold-tint); }
+  .badge.cross { color: var(--neon-soft); background: var(--mint-tint); }
+  .claim-btn {
+    padding: 8px 16px; font-size: 11.5px; letter-spacing: .04em; font-weight: 700;
+    color: #3a2c07; background: linear-gradient(135deg, #e6c765, #f0d888);
+    border: none; box-shadow: 0 6px 16px rgba(194,146,42,.22);
+  }
+  .claim-btn:hover { box-shadow: 0 8px 22px rgba(194,146,42,.32); }
+  .empty {
+    color: var(--faint); font-size: 13.5px; text-align: center;
+    padding: 26px; border: 1px dashed var(--line-strong); border-radius: var(--r-md);
+    background: var(--surface);
+  }
+  .lb-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 11px 16px; border-radius: var(--r-md);
+    border: 1px solid transparent; transition: border-color .2s, background .2s;
+  }
+  .lb-row:hover { border-color: var(--line); background: var(--surface); }
+  .lb-rank { font: 700 14px var(--mono); color: var(--faint); width: 26px; text-align: right; }
+  .lb-row.top1 .lb-rank { color: var(--gold); }
+  .lb-addr { font: 650 13px var(--mono); color: var(--txt); }
+  .lb-title { font: 600 11px var(--sans); letter-spacing: .04em; color: var(--neon-soft); }
+  .lb-vol { margin-left: auto; font: 650 13px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .lb-me { border-color: var(--neon) !important; background: var(--mint-tint); }
+  #installBtn { display: none; }
+  .privtog { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 600; color: var(--neon-soft); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+  .privtog input { accent-color: var(--neon); }
+  .priv-hit { border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px 14px; margin-bottom: 8px; font: 500 12px var(--mono); background: var(--surface); box-shadow: var(--shadow); }
+  .priv-hit .k { color: var(--gold-dim); word-break: break-all; }
+  .priv-hit button { margin-top: 8px; padding: 6px 12px; font-size: 11px; }
+
+  .footer {
+    max-width: 660px; margin: 38px auto 0; padding: 18px 20px 0;
+    border-top: 1px solid var(--line);
+    display: flex; gap: 8px 22px; flex-wrap: wrap; justify-content: center;
+    font: 500 11.5px var(--mono); color: var(--faint); letter-spacing: .02em;
+  }
+  .footer a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--line-strong); }
+  .footer a:hover { color: var(--neon-soft); }
+  .footer .trust { width: 100%; text-align: center; font-family: var(--sans); color: var(--faint); font-size: 11px; letter-spacing: .02em; margin-top: 4px; }
+
+  #toast {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(8px);
+    background: #0e1b14; color: #eaf5ee;
+    border: 1px solid rgba(0,194,111,.4);
+    padding: 13px 22px; border-radius: var(--r-md); display: none; max-width: 92vw; z-index: 50;
+    font-weight: 500; font-size: 14px;
+    box-shadow: 0 16px 44px rgba(12,26,19,.28);
+    animation: toastIn .25s cubic-bezier(.2,.9,.3,1.2) forwards;
+  }
+  @keyframes toastIn { to { transform: translateX(-50%) translateY(0); } }
+  #toast.err { border-color: rgba(229,72,77,.6); color: #ffb4ae; }
+
+  @media (max-width: 620px) {
+    header { padding: 11px 16px; gap: 9px; }
+    h1 { font-size: 15px; }
+    .sub { display: none; }
+    main { margin-top: 18px; padding: 0 12px; }
+    .hero h2 { font-size: 26px; }
+    .stats { grid-template-columns: repeat(2, 1fr); gap: 9px; }
+    .stat .v { font-size: 18px; }
+    .card { padding: 16px; border-radius: 18px; }
+    .actions { flex-direction: column; }
+    input[type=text] { font-size: 16px; }
+    .amount-wrap input { font-size: 19px; }
+    .tx { padding: 12px 14px; gap: 9px; }
+    .tx .stat-cell { margin-left: 0; width: 100%; justify-content: flex-end; }
+    .strip { font-size: 10.5px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
 </style>
 </head>
 <body>
-  <main class="card">
-    <svg class="mark" viewBox="0 0 30 46" aria-hidden="true">
+<canvas id="embers"></canvas>
+<header>
+  <div class="brand">
+    <svg class="candle" viewBox="0 0 30 46" aria-hidden="true">
       <g class="flame">
-        <path d="M15 2 C19 8 21 11 21 14.5 A6 6 0 0 1 9 14.5 C9 11 11 8 15 2 Z" fill="#00c26f" opacity=".9"/>
+        <path d="M15 2 C19 8 21 11 21 14.5 A6 6 0 0 1 9 14.5 C9 11 11 8 15 2 Z" fill="#39ff14" opacity=".85"/>
         <path d="M15 8 C17 11 18 12.5 18 14.5 A3 3 0 0 1 12 14.5 C12 12.5 13 11 15 8 Z" fill="#eaffe0"/>
       </g>
       <rect x="14" y="16" width="2" height="5" fill="#8a7223"/>
       <rect x="7" y="21" width="16" height="22" rx="2" fill="#0f2a0f" stroke="#143914"/>
+      <rect x="7" y="21" width="16" height="5" rx="2" fill="#1f7a1f" opacity=".5"/>
     </svg>
-
-    <span class="eyebrow">● PulseChain ⇄ Ethereum</span>
-    <h1>WICK Bridge is not live yet.</h1>
-    <p>The contracts are not deployed and nothing here can move funds. When the
-       bridge opens, this page becomes the bridge.</p>
-    <p><strong>Do not send anything to this domain or to any address claiming to be
-       this bridge.</strong> There is nothing to send to yet.</p>
-
-    <div class="soon">
-      bridge.wick.pics · <a href="https://wick.pics">wick.pics</a> · <a href="https://games.wick.pics">games.wick.pics</a>
+    <div>
+      <h1>WICK BRIDGE</h1>
+      <div class="sub" id="brandSub">SAFE PASSAGE // PULSECHAIN ⇄ ETHEREUM</div>
     </div>
-  </main>
+  </div>
+  <span class="spacer"></span>
+  <button id="installBtn" title="Install app">⤓ Install</button>
+  <button id="soundBtn" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+  <span class="pill"><span id="relayDot" class="dot"></span>RELAYER <b id="relayState">OFFLINE</b></span>
+  <span class="pill" id="chainPill" style="display:none"><b id="chainName">—</b></span>
+  <button id="btnConnect">Connect Wallet</button>
+</header>
+<div class="strip"><span id="tollLine">TOLL …</span><span class="quiet">· return passage free</span></div>
+<div id="excomm">✖ EXCOMMUNICADO — PASSAGE SUSPENDED BY THE HIGH TABLE ✖</div>
+
+<main>
+  <section class="hero">
+    <span class="eyebrow" id="heroEyebrow">● PulseChain ⇄ Ethereum</span>
+    <h2>Bridge assets in <span class="g">seconds</span>, not minutes.</h2>
+    <p id="heroLede">Move PLS and PRC-20 tokens between PulseChain and Ethereum. Non-custodial, threshold-signed, and hands-free — with optional stealth privacy.</p>
+  </section>
+
+  <section class="card">
+    <div class="seg">
+      <div class="seg-thumb" id="segThumb"></div>
+      <button id="tabP2E" class="active">PULSE → ETH</button>
+      <button id="tabE2P">ETH → PULSE</button>
+    </div>
+
+    <div id="panelP2E">
+      <div class="leg">
+        <div class="leg-cap-row"><span class="leg-cap">You send</span> <span class="chip" id="tollChip">TOLL …</span></div>
+        <div class="radio">
+          <label><input type="radio" name="asset" value="native" checked> PLS (native)</label>
+          <label><input type="radio" name="asset" value="token"> PRC-20 token</label>
+        </div>
+        <div id="tokenRow" style="display:none; margin-bottom:10px">
+          <input type="text" id="lockToken" placeholder="0x… token address on PulseChain" spellcheck="false">
+        </div>
+        <div class="amount-wrap">
+          <input type="text" id="lockAmount" placeholder="0.0" spellcheck="false" inputmode="decimal">
+          <button class="max" id="lockMax">MAX</button>
+        </div>
+        <div class="chips" id="tokChips"></div>
+        <div class="hint" id="lockTokenInfo"></div>
+        <div class="hint" id="lockBal"></div>
+      </div>
+
+      <div class="swapmid"><button id="swapP2E" type="button" title="Swap direction" aria-label="Swap direction">⇅</button></div>
+
+      <div class="leg">
+        <div class="leg-cap-row"><span class="leg-cap">You receive</span> <span class="leg-chain">on <span id="legChainDest">Ethereum</span></span></div>
+        <div class="leg-net muted" id="lockNet">—</div>
+      </div>
+
+      <div class="field recip">
+        <label>Recipient on <span id="lockToChain">Ethereum</span>
+          <label class="privtog"><input type="checkbox" id="lockPrivate"> 🔒 Private</label>
+        </label>
+        <input type="text" id="lockTo" placeholder="defaults to your address" spellcheck="false">
+        <div class="hint" id="lockToHint"></div>
+      </div>
+      <div class="actions">
+        <button id="btnApprove" class="cta ghost" style="display:none">Approve</button>
+        <button id="btnLock" class="cta">Lock &amp; Cross</button>
+      </div>
+    </div>
+
+    <div id="panelE2P" style="display:none">
+      <div class="leg">
+        <div class="leg-cap-row"><span class="leg-cap">You send</span> <span class="chip">NO TOLL ON RETURN</span></div>
+        <input type="text" id="burnToken" placeholder="0x… token (original or wrapped)" spellcheck="false" style="margin-bottom:10px">
+        <div class="amount-wrap">
+          <input type="text" id="burnAmount" placeholder="0.0" spellcheck="false" inputmode="decimal">
+          <button class="max" id="burnMax">MAX</button>
+        </div>
+        <div class="hint" id="burnTokenInfo"></div>
+        <div class="hint" id="burnBal"></div>
+      </div>
+
+      <div class="swapmid"><button id="swapE2P" type="button" title="Swap direction" aria-label="Swap direction">⇅</button></div>
+
+      <div class="leg">
+        <div class="leg-cap-row"><span class="leg-cap">You receive</span> <span class="leg-chain">on <span id="legChainSrc">PulseChain</span></span></div>
+        <div class="leg-net muted" id="burnNet">—</div>
+      </div>
+
+      <div class="field recip">
+        <label>Recipient on <span id="burnToChain">PulseChain</span></label>
+        <input type="text" id="burnTo" placeholder="defaults to your address" spellcheck="false">
+      </div>
+      <div class="actions">
+        <button id="btnBurn" class="cta">Burn &amp; Return</button>
+      </div>
+    </div>
+
+    <div class="toll-note">
+      <span id="tollNoteLeft">…</span>
+      <span>EXPRESS <b id="tollNoteExpress">—</b></span>
+    </div>
+  </section>
+
+  <div class="trustrow">
+    <span><span class="tick">✓</span> Non-custodial</span>
+    <span><span class="tick">✓</span> <b>M-of-N</b> threshold-signed</span>
+    <span><span class="tick">✓</span> Timelocked admin</span>
+    <span><span class="tick">✓</span> 1% of every crossing <b>burns WICK</b></span>
+  </div>
+
+  <section class="stats">
+    <div class="stat fire"><div class="k">🔥 Wick Burned</div><div class="v" id="statBurned">—</div></div>
+    <div class="stat"><div class="k">Crossings</div><div class="v" id="statCrossings">—</div></div>
+    <div class="stat"><div class="k">War Chest</div><div class="v" id="statChest">—</div></div>
+    <div class="stat"><div class="k">Avg Honor</div><div class="v" id="statHonor">—</div></div>
+  </section>
+
+  <section class="markers">
+    <h2>◉ MARKERS</h2>
+    <div id="txList"><div class="empty">connect a wallet to see your markers</div></div>
+  </section>
+
+  <section class="markers" id="highTableSection" style="display:none">
+    <h2>♛ THE HIGH TABLE</h2>
+    <div id="highTable"></div>
+  </section>
+
+  <section class="markers" id="privacySection" style="display:none">
+    <h2>◈ PRIVATE RECEIVE</h2>
+    <div class="hint" style="margin-bottom:12px">Receive at a fresh, unlinkable address (EIP-5564 stealth). Share your meta-address off-chain; a sender ticks 🔒 Private and only you can find &amp; spend the funds. Hides <b>who</b> receives — not the amount or timing.</div>
+    <div class="actions" style="margin-top:0">
+      <button id="btnReveal" class="cta ghost" style="flex:none">Reveal my stealth meta-address</button>
+      <button id="btnScan" class="cta ghost" style="flex:none; display:none">Scan for private payments</button>
+    </div>
+    <div class="hint" id="metaOut" style="display:none; margin-top:10px; word-break:break-all"></div>
+    <div id="privResults" style="margin-top:10px"></div>
+  </section>
+</main>
+
+<div class="footer">
+  <span id="footVault"></span>
+  <span id="footMinter"></span>
+  <span id="footToll"></span>
+  <span class="trust">crossings are authorized by the operator's threshold signer set — only bridge what you'd trust the operators with</span>
+</div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+let CFG = null;
+let account = null;
+let walletChainId = null;
+let excomm = false;
+const TOLL = { bps: null, burnBps: null, burn: true };
+let STATUS = null;
+
+// Destination-chain naming. ONE ui/ directory serves every lane (Ethereum,
+// Robinhood, ...) — every user-visible chain name comes from config.json, so a
+// second lane is a config file, not a forked copy that drifts.
+const CHAIN_LABEL = { srcName: 'PulseChain', destName: 'Ethereum', srcShort: 'PULSE', destShort: 'ETH' };
+const dirLabel = dir => dir === 'P2E'
+  ? `${CHAIN_LABEL.srcShort} → ${CHAIN_LABEL.destShort}`
+  : `${CHAIN_LABEL.destShort} → ${CHAIN_LABEL.srcShort}`;
+
+function applyChainLabels() {
+  const shortOf = (side, fallback) =>
+    (CFG?.[side]?.short || CFG?.[side]?.currency?.symbol || CFG?.[side]?.name || fallback)
+      .toString().toUpperCase();
+  CHAIN_LABEL.srcName = CFG?.pulse?.name || 'PulseChain';
+  CHAIN_LABEL.destName = CFG?.eth?.name || 'Ethereum';
+  CHAIN_LABEL.srcShort = shortOf('pulse', 'PULSE');
+  CHAIN_LABEL.destShort = shortOf('eth', 'ETH');
+  const { srcName, destName, srcShort, destShort } = CHAIN_LABEL;
+
+  const set = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+  set('brandSub', `SAFE PASSAGE // ${srcName.toUpperCase()} ⇄ ${destName.toUpperCase()}`);
+  set('heroEyebrow', `● ${srcName} ⇄ ${destName}`);
+  set('heroLede', `Move ${CFG?.pulse?.currency?.symbol || 'PLS'} and PRC-20 tokens between ${srcName} and ${destName}. `
+    + 'Non-custodial, threshold-signed, and hands-free — with optional stealth privacy.');
+  set('tabP2E', `${srcShort} → ${destShort}`);
+  set('tabE2P', `${destShort} → ${srcShort}`);
+  set('legChainDest', destName);
+  set('legChainSrc', srcName);
+  set('lockToChain', destName);
+  set('burnToChain', srcName);
+  $('lockToken').placeholder = `0x… token address on ${srcName}`;
+  document.querySelector('meta[name=description]')
+    ?.setAttribute('content', `WICK BRIDGE — lock on ${srcName}, claim on ${destName}. Express crossings in seconds.`);
+  document.querySelector('meta[property="og:description"]')
+    ?.setAttribute('content', `Safe passage ${srcName} ⇄ ${destName}. 2% toll — half to the war chest, half buys & burns WICK.`);
+}
+
+const SEL = {
+  approve: '0x095ea7b3', allowance: '0xdd62ed3e', balanceOf: '0x70a08231',
+  decimals: '0x313ce567', symbol: '0x95d89b41',
+  lock: '0x4bbc170a', lockNative: '0x24c026a2', burn: '0xb8ce670d',
+  wrappedOf: '0x20cf25c4', originalOf: '0x8fac499b',
+  feeBps: '0x24a9d853', feeTo: '0x017e7e58', paused: '0x5c975abb',
+  burnBps: '0x53deb3d6', burnPool: '0xa54b2a73',
+};
+const TOPIC = {
+  Locked: '0x4c9e4f829048022358b487e164c43d686497c9a5d12e35bd0e1502182438fc95',
+  Burned: '0x6da3ae5620021d0b1ee202cd9d193663e90c7481adc0b5101c6e83edbc5da864',
+  Announcement: '0x5f0eab8057630ba7676c49b4f21a0231414e79474595be8e4c432fbf6bf0f4e7',
+};
+const ANNOUNCE_SEL = '0x4d1f9583'; // announce(uint256,address,bytes,bytes)
+let stealthKeys = null; // recipient keys, derived on demand
+const DEAD = '0x000000000000000000000000000000000000dead';
+
+// ------- helpers -------
+const $ = id => document.getElementById(id);
+const pad = h => h.replace(/^0x/, '').padStart(64, '0');
+const encAddr = a => pad(a.toLowerCase());
+const encU = n => pad(BigInt(n).toString(16));
+const isAddr = a => /^0x[0-9a-fA-F]{40}$/.test(a || '');
+const short = a => a ? a.slice(0, 6) + '…' + a.slice(-4) : '';
+// ABI-encode a dynamic bytes arg: length word + right-padded data (verified == ethers)
+const encBytes = hex => { const b = hex.replace(/^0x/, ''); return encU(b.length / 2) + b.padEnd(Math.ceil(b.length / 64) * 64, '0'); };
+function encodeAnnounce(schemeId, addr, ephem, meta) {
+  const e = encBytes(ephem), m = encBytes(meta);
+  return ANNOUNCE_SEL + encU(schemeId) + encAddr(addr) + encU(128) + encU(128 + e.length / 2) + e + m;
+}
+const scanUrl = (chainKey, kind, id) => {
+  const base = CFG?.[chainKey]?.explorer;
+  return base ? `${base}/${kind}/${id}` : null;
+};
+const scanLink = (chainKey, kind, id, text) => {
+  const u = scanUrl(chainKey, kind, id);
+  return u ? `<a href="${u}" target="_blank" rel="noopener noreferrer">${text}</a>` : text;
+};
+const timeago = ts => {
+  const s = Math.max(1, Math.round((Date.now() - ts) / 1000));
+  if (s < 60) return s + 's ago';
+  if (s < 3600) return Math.round(s / 60) + 'm ago';
+  if (s < 86400) return Math.round(s / 3600) + 'h ago';
+  return Math.round(s / 86400) + 'd ago';
+};
+
+function toast(msg, err) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = err ? 'err' : '';
+  t.style.display = 'block';
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.style.display = 'none', err ? 8000 : 5000);
+}
+
+// ------- sound (WebAudio, no assets) -------
+let soundOn = localStorage.getItem('wb_sound') !== 'off';
+let actx = null;
+function chime(kind) {
+  if (!soundOn) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const notes = kind === 'honor' ? [523.25, 783.99, 1046.5] : kind === 'cross' ? [392, 587.33] : [880];
+    notes.forEach((f, i) => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      const t = actx.currentTime + i * 0.09;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.13, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+      o.connect(g); g.connect(actx.destination);
+      o.start(t); o.stop(t + 0.42);
+    });
+    if (navigator.vibrate && kind === 'honor') navigator.vibrate(20);
+  } catch {}
+}
+function setSound(on) {
+  soundOn = on;
+  localStorage.setItem('wb_sound', on ? 'on' : 'off');
+  $('soundBtn').textContent = on ? '🔊' : '🔇';
+}
+
+function fmtUnits(v, d) {
+  v = BigInt(v);
+  const neg = v < 0n; if (neg) v = -v;
+  const base = 10n ** BigInt(d);
+  const whole = v / base, frac = v % base;
+  let f = frac.toString().padStart(d, '0').replace(/0+$/, '').slice(0, 6);
+  return (neg ? '-' : '') + whole.toString() + (f ? '.' + f : '');
+}
+
+function parseUnits(s, d) {
+  s = (s || '').trim();
+  if (!/^\d*\.?\d*$/.test(s) || s === '' || s === '.') throw new Error('bad amount');
+  const [w, f = ''] = s.split('.');
+  if (f.length > d) throw new Error(`max ${d} decimals`);
+  return BigInt(w || '0') * 10n ** BigInt(d) + BigInt((f + '0'.repeat(d)).slice(0, d) || '0');
+}
+
+async function rpc(chainKey, method, params) {
+  const r = await fetch(CFG[chainKey].rpc, {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+  });
+  const j = await r.json();
+  if (j.error) throw new Error(j.error.message);
+  return j.result;
+}
+const ethCall = (chainKey, to, data) => rpc(chainKey, 'eth_call', [{ to, data }, 'latest']);
+
+// HTML-escape any on-chain string before it touches innerHTML. Token name/
+// symbol are attacker-controlled (any address can be typed in), so escaping —
+// not just length-capping — is the real XSS defense (audit UI finding).
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function decodeString(hex) {
+  if (!hex || hex === '0x') return null;
+  const raw = hex.slice(2);
+  try {
+    if (raw.length === 64) {
+      let s = '';
+      for (let i = 0; i < 64; i += 2) { const c = parseInt(raw.slice(i, i + 2), 16); if (c) s += String.fromCharCode(c); }
+      return s.slice(0, 64) || null;
+    }
+    // clamp the attacker-supplied length word: a hostile token returning a
+    // near-2^256 length would otherwise spin an unbounded loop (client DoS).
+    const declared = parseInt(raw.slice(64, 128), 16) || 0;
+    const avail = Math.floor((raw.length - 128) / 2);
+    const len = Math.min(declared, avail, 128);
+    let s = '';
+    for (let i = 0; i < len; i++) { s += String.fromCharCode(parseInt(raw.slice(128 + i * 2, 130 + i * 2), 16)); }
+    return s;
+  } catch { return null; }
+}
+
+async function tokenMeta(chainKey, addr) {
+  const [symHex, decHex] = await Promise.all([
+    ethCall(chainKey, addr, SEL.symbol).catch(() => null),
+    ethCall(chainKey, addr, SEL.decimals).catch(() => null),
+  ]);
+  return {
+    symbol: decodeString(symHex) || 'TOKEN',
+    decimals: decHex && decHex !== '0x' ? parseInt(decHex, 16) : 18,
+  };
+}
+
+const balOf = async (chainKey, token, who) => BigInt(await ethCall(chainKey, token, SEL.balanceOf + encAddr(who)));
+const nativeBal = async (chainKey, who) => BigInt(await rpc(chainKey, 'eth_getBalance', [who, 'latest']));
+
+// ------- count-up animation -------
+const lastVals = {};
+function countUp(id, target, suffix = '') {
+  const el = $(id);
+  const from = lastVals[id] ?? 0;
+  lastVals[id] = target;
+  // paint the real value immediately — the tween is decoration only and rAF
+  // may be paused (hidden tab); correctness never depends on it
+  el.innerHTML = fmtStat(target) + suffix;
+  if (from === target || document.hidden) return;
+  const t0 = performance.now(), dur = 700;
+  const step = now => {
+    const p = Math.min(1, (now - t0) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.innerHTML = fmtStat(from + (target - from) * eased) + suffix;
+    if (p < 1) requestAnimationFrame(step); else el.innerHTML = fmtStat(target) + suffix;
+  };
+  requestAnimationFrame(step);
+}
+const fmtStat = n => Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 });
+
+// ------- embers -------
+(function embers() {
+  return; // light theme: ambient embers disabled (kept for a possible dark mode)
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cv = $('embers'), ctx = cv.getContext('2d');
+  let W, H, parts = [];
+  const resize = () => { W = cv.width = innerWidth; H = cv.height = innerHeight; };
+  resize(); addEventListener('resize', resize);
+  const spawn = () => ({
+    x: Math.random() * W, y: H + 10,
+    r: .8 + Math.random() * 1.8,
+    vy: .25 + Math.random() * .6,
+    vx: (Math.random() - .5) * .25,
+    a: .05 + Math.random() * .22,
+    gold: Math.random() < .3,
+    ph: Math.random() * Math.PI * 2,
+  });
+  for (let i = 0; i < 34; i++) { const p = spawn(); p.y = Math.random() * H; parts.push(p); }
+  (function tick() {
+    ctx.clearRect(0, 0, W, H);
+    for (const p of parts) {
+      p.y -= p.vy; p.x += p.vx + Math.sin(p.y / 60 + p.ph) * .18;
+      if (p.y < -12) Object.assign(p, spawn());
+      ctx.globalAlpha = p.a * Math.min(1, p.y / 240);
+      ctx.fillStyle = p.gold ? '#e8c258' : '#39ff14';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(tick);
+  })();
+})();
+
+// ------- token quick-picks -------
+const RKEY = 'wb_recent';
+const loadRecents = () => { try { return JSON.parse(localStorage.getItem(RKEY)) || []; } catch { return []; } };
+function saveRecent(meta) {
+  const list = [{ symbol: meta.symbol, address: meta.addr },
+    ...loadRecents().filter(x => x.address.toLowerCase() !== meta.addr.toLowerCase())].slice(0, 5);
+  localStorage.setItem(RKEY, JSON.stringify(list));
+  renderChips();
+}
+function renderChips() {
+  const el = $('tokChips');
+  const cfgTokens = CFG.tokens || [];
+  const seen = new Set(cfgTokens.map(t => t.address.toLowerCase()));
+  const all = [...cfgTokens, ...loadRecents().filter(t => !seen.has(t.address.toLowerCase()))];
+  el.innerHTML = '';
+  for (const t of all) {
+    const b = document.createElement('button');
+    b.textContent = t.symbol;
+    b.title = t.address;
+    b.onclick = () => {
+      document.querySelector('input[name=asset][value=token]').checked = true;
+      $('lockToken').value = t.address;
+      refreshLockPanel().catch(() => {});
+    };
+    el.appendChild(b);
+  }
+}
+
+// ------- pending crossings -------
+const PKEY = 'wb_pending';
+const loadPending = () => { try { return JSON.parse(localStorage.getItem(PKEY)) || []; } catch { return []; } };
+const savePending = p => localStorage.setItem(PKEY, JSON.stringify(p));
+
+function pendingFromReceipt(rec, dir, meta) {
+  const topic = dir === 'P2E' ? TOPIC.Locked : TOPIC.Burned;
+  const log = (rec.logs || []).find(l => (l.topics || [])[0] === topic);
+  if (!log) return null;
+  return {
+    dir,
+    nonce: BigInt(log.topics[1]).toString(),
+    amount: BigInt('0x' + log.data.slice(2 + 64, 2 + 128)).toString(),
+    symbol: meta.symbol, decimals: meta.decimals,
+    srcChain: dir === 'P2E' ? 'pulse' : 'eth',
+    block: parseInt(rec.blockNumber, 16),
+    txHash: rec.transactionHash,
+    ts: Date.now(),
+  };
+}
+
+function trackPending(rec, dir, meta) {
+  const p = pendingFromReceipt(rec, dir, meta);
+  if (!p) return;
+  const list = loadPending().filter(x => !(x.dir === p.dir && x.nonce === p.nonce));
+  list.push(p);
+  savePending(list);
+}
+
+function confNeeded(srcChain, pending) {
+  const side = STATUS?.[srcChain];
+  if (!side) return null;
+  const whole = Number(fmtUnits(pending.amount, pending.decimals));
+  for (const t of [...(side.tiers || [])].sort((a, b) => a.upTo - b.upTo)) {
+    if (whole <= t.upTo) return t.confirmations;
+  }
+  return side.confirmations ?? 0;
+}
+
+// ------- toll + excommunicado -------
+const pctOf = bps => (Number(bps) / 100) + '%';
+function tollTotal() { return (TOLL.bps ?? 0n) + (TOLL.burnBps ?? 0n); }
+
+async function loadToll() {
+  try {
+    const [bpsHex, toHex, burnHex, poolHex] = await Promise.all([
+      ethCall('pulse', CFG.pulse.vault, SEL.feeBps),
+      ethCall('pulse', CFG.pulse.vault, SEL.feeTo),
+      ethCall('pulse', CFG.pulse.vault, SEL.burnBps),
+      ethCall('pulse', CFG.pulse.vault, SEL.burnPool),
+    ]);
+    TOLL.bps = BigInt(bpsHex);
+    TOLL.to = '0x' + toHex.slice(-40);
+    TOLL.burn = TOLL.to.toLowerCase() === DEAD;
+    TOLL.burnBps = BigInt(burnHex);
+    TOLL.pool = '0x' + poolHex.slice(-40);
+  } catch { TOLL.bps = null; TOLL.burnBps = null; }
+
+  if (TOLL.bps === null) {
+    $('tollLine').textContent = 'TOLL ?';
+    $('tollChip').textContent = 'TOLL ?';
+    $('tollNoteLeft').textContent = '';
+  } else if (tollTotal() === 0n) {
+    $('tollLine').textContent = 'NO TOLL';
+    $('tollChip').textContent = 'NO TOLL';
+    $('tollNoteLeft').textContent = 'no toll on crossings';
+  } else if (TOLL.burnBps > 0n) {
+    $('tollLine').textContent = `TOLL ${pctOf(tollTotal())} — ${pctOf(TOLL.bps)} TO THE WAR CHEST · ${pctOf(TOLL.burnBps)} BUYS & BURNS WICK`;
+    $('tollChip').textContent = `TOLL ${pctOf(tollTotal())}`;
+    $('tollNoteLeft').innerHTML = `toll <b>${pctOf(tollTotal())}</b> = ${pctOf(TOLL.bps)} chest + ${pctOf(TOLL.burnBps)} 🔥 wick`;
+  } else {
+    $('tollLine').textContent = `TOLL ${pctOf(TOLL.bps)} — ${TOLL.burn ? 'BURNED' : 'TO THE WAR CHEST'}`;
+    $('tollChip').textContent = `TOLL ${pctOf(TOLL.bps)}`;
+    $('tollNoteLeft').innerHTML = `toll <b>${pctOf(TOLL.bps)}</b> ${TOLL.burn ? 'burned' : 'to the war chest'}`;
+  }
+
+  $('footVault').innerHTML = 'VAULT ' + scanLink('pulse', 'address', CFG.pulse.vault, short(CFG.pulse.vault));
+  $('footMinter').innerHTML = 'MINTER ' + scanLink('eth', 'address', CFG.eth.minter, short(CFG.eth.minter));
+  const parts = [];
+  if (TOLL.to && TOLL.bps > 0n) {
+    parts.push(`CHEST → ` + (TOLL.burn ? '🔥' : scanLink('pulse', 'address', TOLL.to, short(TOLL.to))));
+  }
+  if (TOLL.pool && TOLL.burnBps > 0n) {
+    parts.push(`FIRE PIT → ` + scanLink('pulse', 'address', TOLL.pool, short(TOLL.pool)));
+  }
+  $('footToll').innerHTML = parts.join(' · ');
+  renderNetPreview();
+}
+
+async function checkExcomm() {
+  try { excomm = BigInt(await ethCall('pulse', CFG.pulse.vault, SEL.paused)) !== 0n; }
+  catch { excomm = false; }
+  $('excomm').style.display = excomm ? 'block' : 'none';
+  validateLock();
+}
+
+// ------- validation -------
+function validateLock() {
+  const btn = $('btnLock'), hint = $('lockBal');
+  hint.classList.remove('err-hint');
+  if (excomm) { btn.disabled = true; return; }
+  btn.disabled = false;
+  const raw = $('lockAmount').value.trim();
+  if (!raw) return;
+  try {
+    const amt = parseUnits(raw, lockMeta.decimals);
+    if (lockMeta.bal !== undefined && amt > lockMeta.bal) { btn.disabled = true; hint.classList.add('err-hint'); }
+  } catch { btn.disabled = true; hint.classList.add('err-hint'); }
+}
+
+function validateBurn() {
+  const btn = $('btnBurn'), hint = $('burnBal');
+  hint.classList.remove('err-hint');
+  btn.disabled = false;
+  const raw = $('burnAmount').value.trim();
+  if (!burnMeta || !raw) return;
+  try {
+    const amt = parseUnits(raw, burnMeta.decimals);
+    if (burnMeta.bal !== undefined && amt > burnMeta.bal) { btn.disabled = true; hint.classList.add('err-hint'); }
+  } catch { btn.disabled = true; hint.classList.add('err-hint'); }
+}
+
+function renderNetPreview() {
+  const el = $('lockNet');
+  const muted = () => { el.classList.add('muted'); el.textContent = '—'; };
+  if (TOLL.bps === null) return muted();
+  try {
+    const amt = parseUnits($('lockAmount').value, lockMeta.decimals);
+    if (amt === 0n) return muted();
+    const net = amt - (amt * tollTotal()) / 10000n;
+    el.classList.remove('muted');
+    el.textContent = `≈ ${fmtUnits(net, lockMeta.decimals)} ${lockMeta.symbol}`;
+  } catch { muted(); }
+}
+
+// ------- wallet -------
+async function connect() {
+  if (!window.ethereum) return toast('no wallet detected — install MetaMask', true);
+  const [acc] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+  account = acc;
+  walletChainId = parseInt(await window.ethereum.request({ method: 'eth_chainId' }), 16);
+  window.ethereum.on?.('accountsChanged', a => { account = a[0] || null; renderWallet(); refresh(); });
+  window.ethereum.on?.('chainChanged', c => { walletChainId = parseInt(c, 16); renderWallet(); });
+  renderWallet();
+  refresh();
+}
+
+function chainKeyOf(id) {
+  if (!CFG) return null;
+  if (id === CFG.pulse.chainId) return 'pulse';
+  if (id === CFG.eth.chainId) return 'eth';
+  return null;
+}
+
+function renderWallet() {
+  $('btnConnect').textContent = account ? short(account) : 'Connect Wallet';
+  const key = chainKeyOf(walletChainId);
+  $('chainPill').style.display = account ? '' : 'none';
+  $('chainName').textContent = key ? CFG[key].name : `#${walletChainId} (wrong net)`;
+}
+
+async function ensureChain(chainKey) {
+  const c = CFG[chainKey];
+  if (walletChainId === c.chainId) return;
+  const hex = '0x' + c.chainId.toString(16);
+  try {
+    await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex }] });
+  } catch (e) {
+    if (e.code === 4902 || String(e.message || '').includes('Unrecognized')) {
+      await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{
+        chainId: hex, chainName: c.name, rpcUrls: [c.rpc],
+        nativeCurrency: c.currency || { name: chainKey === 'pulse' ? 'Pulse' : 'Ether', symbol: chainKey === 'pulse' ? 'PLS' : 'ETH', decimals: 18 },
+      }] });
+    } else throw e;
+  }
+  walletChainId = c.chainId;
+  renderWallet();
+}
+
+async function sendTx(chainKey, to, data, valueWei) {
+  await ensureChain(chainKey);
+  const params = { from: account, to, data };
+  if (valueWei) params.value = '0x' + BigInt(valueWei).toString(16);
+  const hash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [params] });
+  toast('tx sent: ' + short(hash));
+  for (let i = 0; i < 120; i++) {
+    const rec = await rpc(chainKey, 'eth_getTransactionReceipt', [hash]).catch(() => null);
+    if (rec) {
+      if (rec.status !== '0x1') throw new Error('tx reverted: ' + short(hash));
+      return rec;
+    }
+    await new Promise(r => setTimeout(r, 1000));
+  }
+  throw new Error('tx not mined (timeout): ' + short(hash));
+}
+
+// ------- P2E -------
+let lockMeta = { symbol: 'PLS', decimals: 18, native: true };
+function assetMode() { return document.querySelector('input[name=asset]:checked').value; }
+
+async function refreshLockPanel() {
+  const native = assetMode() === 'native';
+  $('tokenRow').style.display = native ? 'none' : '';
+  $('btnApprove').style.display = 'none';
+  $('lockTokenInfo').textContent = '';
+  $('lockBal').textContent = '';
+  if (native) {
+    lockMeta = { symbol: 'PLS', decimals: 18, native: true };
+    renderNetPreview();
+    if (account) {
+      lockMeta.bal = await nativeBal('pulse', account);
+      $('lockBal').textContent = `balance: ${fmtUnits(lockMeta.bal, 18)} PLS`;
+    }
+    validateLock();
+    return;
+  }
+  const t = $('lockToken').value.trim();
+  if (!isAddr(t)) { $('lockTokenInfo').textContent = `enter a ${CHAIN_LABEL.srcName} token address`; return; }
+  try {
+    const m = await tokenMeta('pulse', t);
+    lockMeta = { ...m, native: false, addr: t };
+    $('lockTokenInfo').textContent = `${m.symbol} · ${m.decimals} decimals`;
+    renderNetPreview();
+    if (account) {
+      lockMeta.bal = await balOf('pulse', t, account);
+      $('lockBal').textContent = `balance: ${fmtUnits(lockMeta.bal, m.decimals)} ${m.symbol}`;
+      await refreshApproveState();
+    }
+    validateLock();
+  } catch { $('lockTokenInfo').textContent = 'could not read token'; }
+}
+
+async function refreshApproveState() {
+  if (lockMeta.native || !account || !isAddr(lockMeta.addr)) return;
+  let amt;
+  try { amt = parseUnits($('lockAmount').value || '0', lockMeta.decimals); } catch { return; }
+  if (amt === 0n) { $('btnApprove').style.display = 'none'; return; }
+  const allow = BigInt(await ethCall('pulse', lockMeta.addr,
+    SEL.allowance + encAddr(account) + encAddr(CFG.pulse.vault)));
+  $('btnApprove').style.display = allow < amt ? '' : 'none';
+}
+
+async function doApprove() {
+  const amt = parseUnits($('lockAmount').value, lockMeta.decimals);
+  await sendTx('pulse', lockMeta.addr, SEL.approve + encAddr(CFG.pulse.vault) + encU(amt));
+  toast('approved');
+  await refreshApproveState();
+}
+
+async function doLock() {
+  if (!account) return toast('connect wallet first', true);
+  if (excomm) return toast('EXCOMMUNICADO — passage suspended', true);
+  // private send: recipient field holds a stealth meta-address; derive a fresh
+  // one-time address, pay it, and announce the ephemeral key on the source chain
+  let to, announce = null;
+  if ($('lockPrivate').checked) {
+    if (!window.Stealth) return toast('stealth crypto still loading…', true);
+    const meta = $('lockTo').value.trim();
+    if (!/^st:eth:0x[0-9a-fA-F]{264}$/.test(meta)) return toast('enter the recipient stealth meta-address (st:eth:0x…)', true);
+    if (!CFG.pulse.announcer) return toast('this bridge has no stealth announcer deployed', true);
+    try { announce = window.Stealth.computeStealth(meta); to = announce.stealthAddress; }
+    catch { return toast('could not parse that meta-address', true); }
+  } else {
+    to = $('lockTo').value.trim() || account;
+    if (!isAddr(to)) return toast('bad recipient address', true);
+  }
+  let amt;
+  try { amt = parseUnits($('lockAmount').value, lockMeta.decimals); } catch (e) { return toast(e.message, true); }
+  if (amt === 0n) return toast('zero amount', true);
+  const rec = lockMeta.native
+    ? await sendTx('pulse', CFG.pulse.vault, SEL.lockNative + encAddr(to), amt)
+    : await sendTx('pulse', CFG.pulse.vault, SEL.lock + encAddr(lockMeta.addr) + encU(amt) + encAddr(to));
+  trackPending(rec, 'P2E', lockMeta);
+  if (!lockMeta.native) saveRecent(lockMeta);
+  if (announce) {
+    try {
+      await sendTx('pulse', CFG.pulse.announcer,
+        encodeAnnounce(1, announce.stealthAddress, announce.ephemeralPubKey, '0x' + announce.viewTag.toString(16).padStart(2, '0')));
+      toast('private crossing announced — only the recipient can find it');
+    } catch (e) { toast('locked, but announce failed — recipient may not detect it: ' + (e.message || e), true); }
+  }
+  chime('cross');
+  toast(`crossed ${$('lockAmount').value} ${lockMeta.symbol} — your marker is being signed`);
+  refresh();
+}
+
+// ------- stealth receive -------
+async function revealMeta() {
+  if (!account) return toast('connect wallet first', true);
+  if (!window.Stealth) return toast('stealth crypto still loading…', true);
+  try {
+    const sign = (msg) => window.ethereum.request({ method: 'personal_sign', params: [msg, account] });
+    stealthKeys = await window.Stealth.deriveKeys(sign);
+    $('metaOut').style.display = 'block';
+    $('metaOut').innerHTML = `<b>Your stealth meta-address</b> — share this off-chain; senders tick 🔒 Private:<br>` +
+      `<span style="color:var(--gold)">${esc(stealthKeys.metaAddress)}</span> <button class="claim-btn" id="copyMeta">COPY</button>`;
+    $('copyMeta').onclick = () => { navigator.clipboard.writeText(stealthKeys.metaAddress); toast('copied'); };
+    $('btnScan').style.display = '';
+  } catch (e) { toast('signature rejected: ' + (e.message || e), true); }
+}
+
+async function scanPrivate() {
+  if (!stealthKeys) return toast('reveal your meta-address first', true);
+  const ann = CFG.pulse.announcer;
+  if (!ann) return toast('no announcer configured', true);
+  $('privResults').innerHTML = '<div class="hint">scanning announcements…</div>';
+  let logs;
+  try { logs = await rpc('pulse', 'eth_getLogs', [{ address: ann, topics: [TOPIC.Announcement], fromBlock: '0x0', toBlock: 'latest' }]); }
+  catch (e) { $('privResults').innerHTML = `<div class="empty">scan failed: ${esc(e.message || e)}</div>`; return; }
+  const hits = [];
+  for (const log of logs) {
+    try {
+      const stealthAddr = '0x' + log.topics[2].slice(26);
+      const data = log.data.slice(2);
+      const off1 = parseInt(data.slice(0, 64), 16) * 2;
+      const len1 = parseInt(data.slice(off1, off1 + 64), 16) * 2;
+      const ephem = '0x' + data.slice(off1 + 64, off1 + 64 + len1);
+      const off2 = parseInt(data.slice(64, 128), 16) * 2;
+      const len2 = parseInt(data.slice(off2, off2 + 64), 16) * 2;
+      const metaHex = data.slice(off2 + 64, off2 + 64 + len2);
+      const viewTag = metaHex.length >= 2 ? parseInt(metaHex.slice(0, 2), 16) : null;
+      const hit = window.Stealth.checkAnnouncement(stealthKeys, ephem, viewTag);
+      if (hit && hit.stealthAddress.toLowerCase() === stealthAddr.toLowerCase()) hits.push({ stealthAddr, ephem });
+    } catch {}
+  }
+  if (!hits.length) { $('privResults').innerHTML = '<div class="empty">no private payments found for your keys</div>'; return; }
+  $('privResults').innerHTML = '';
+  for (const h of hits) {
+    const div = document.createElement('div');
+    div.className = 'priv-hit';
+    div.innerHTML = `<div>◈ received at ${scanLink('eth', 'address', h.stealthAddr, `<span class="k">${h.stealthAddr}</span>`)}</div>` +
+      `<button class="claim-btn">Reveal spending key</button>`;
+    div.querySelector('button').onclick = (ev) => {
+      const key = window.Stealth.stealthPrivateKey(stealthKeys, h.ephem);
+      ev.target.outerHTML = `<div class="k" style="color:var(--hot);margin-top:6px">${key}</div>` +
+        `<div class="hint">import this key into a wallet on ${CHAIN_LABEL.destName} to spend the funds. Keep it secret — anyone with it controls this address.</div>`;
+    };
+    $('privResults').appendChild(div);
+  }
+}
+
+// ------- E2P -------
+let burnMeta = null;
+
+async function refreshBurnPanel() {
+  burnMeta = null;
+  renderBurnPreview();
+  $('burnTokenInfo').textContent = '';
+  $('burnBal').textContent = '';
+  const t = $('burnToken').value.trim();
+  if (!isAddr(t)) { $('burnTokenInfo').textContent = `paste the ${CHAIN_LABEL.srcName} token, or its wrapped ${CHAIN_LABEL.destName} address`; return; }
+  try {
+    const orig = await ethCall('eth', CFG.eth.minter, SEL.originalOf + encAddr(t));
+    let wrapped = null;
+    if (BigInt(orig) !== 0n) wrapped = t;
+    else {
+      const w = await ethCall('eth', CFG.eth.minter, SEL.wrappedOf + encAddr(t));
+      if (BigInt(w) !== 0n) wrapped = '0x' + w.slice(-40);
+    }
+    if (!wrapped) { $('burnTokenInfo').textContent = `no wrapped token exists for this yet — cross ${dirLabel("P2E")} first`; return; }
+    const m = await tokenMeta('eth', wrapped);
+    burnMeta = { wrapped, ...m };
+    $('burnTokenInfo').textContent = `wrapped: ${short(wrapped)} · ${m.symbol} · ${m.decimals} decimals`;
+    if (account) {
+      burnMeta.bal = await balOf('eth', wrapped, account);
+      $('burnBal').textContent = `wrapped balance: ${fmtUnits(burnMeta.bal, m.decimals)} ${m.symbol}`;
+    }
+    validateBurn();
+    renderBurnPreview();
+  } catch { $('burnTokenInfo').textContent = 'could not resolve wrapped token'; }
+}
+
+// live "you receive" figure for the return leg (1:1, no toll)
+function renderBurnPreview() {
+  const el = $('burnNet');
+  if (!el) return;
+  const muted = () => { el.classList.add('muted'); el.textContent = '—'; };
+  if (!burnMeta) return muted();
+  try {
+    const amt = parseUnits($('burnAmount').value, burnMeta.decimals);
+    if (amt === 0n) return muted();
+    el.classList.remove('muted');
+    el.textContent = `≈ ${fmtUnits(amt, burnMeta.decimals)} ${burnMeta.symbol}`;
+  } catch { muted(); }
+}
+
+async function doBurn() {
+  if (!account) return toast('connect wallet first', true);
+  if (!burnMeta) return toast('resolve a wrapped token first', true);
+  const to = $('burnTo').value.trim() || account;
+  if (!isAddr(to)) return toast('bad recipient address', true);
+  let amt;
+  try { amt = parseUnits($('burnAmount').value, burnMeta.decimals); } catch (e) { return toast(e.message, true); }
+  if (amt === 0n) return toast('zero amount', true);
+  const rec = await sendTx('eth', CFG.eth.minter, SEL.burn + encAddr(burnMeta.wrapped) + encU(amt) + encAddr(to));
+  trackPending(rec, 'E2P', burnMeta);
+  chime('cross');
+  toast(`burned ${$('burnAmount').value} ${burnMeta.symbol} — release marker on the way (no toll)`);
+  refresh();
+}
+
+// ------- stats -------
+async function refreshStats() {
+  try {
+    const s = await (await fetch(CFG.relayerApi + '/api/stats')).json();
+    countUp('statBurned', Number(s.wickBurned || 0));
+    countUp('statCrossings', s.crossings);
+    const chest = Object.values(s.tokens || {}).filter(t => Number(t.toll) > 0)
+      .sort((a, b) => Number(b.toll) - Number(a.toll))[0];
+    $('statChest').innerHTML = chest
+      ? `${fmtStat(chest.toll)}<small>${esc(chest.symbol)}</small>` : '0';
+    $('statHonor').innerHTML = s.avgClaimSec !== null
+      ? `${s.avgClaimSec}<small>s</small>` : '—';
+    $('tollNoteExpress').textContent = s.expressShare + '%';
+  } catch {
+    $('tollNoteExpress').textContent = '—';
+  }
+}
+
+// ------- high table -------
+async function refreshHighTable() {
+  let board = null;
+  try { board = await (await fetch(CFG.relayerApi + '/api/hightable?limit=10')).json(); } catch {}
+  const sec = $('highTableSection'), el = $('highTable');
+  if (!board || !board.length) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  el.innerHTML = '';
+  board.forEach((r, i) => {
+    const row = document.createElement('div');
+    row.className = 'lb-row' + (i === 0 ? ' top1' : '') +
+      (account && r.address.toLowerCase() === account.toLowerCase() ? ' lb-me' : '');
+    const medal = i === 0 ? '♛' : i === 1 ? '♜' : i === 2 ? '♞' : (i + 1);
+    row.innerHTML = `
+      <span class="lb-rank">${medal}</span>
+      <div>
+        <div class="lb-addr">${scanLink('pulse', 'address', r.address, short(r.address))}</div>
+        <div class="lb-title">${r.rank} · ${r.crossings} crossing${r.crossings === 1 ? '' : 's'}</div>
+      </div>
+      <span class="lb-vol">${Number(r.topVolume).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${esc(r.topToken)}</span>`;
+    el.appendChild(row);
+  });
+}
+
+// ------- markers -------
+async function doClaim(v) {
+  if (!account) return toast('connect wallet first', true);
+  const chainKey = v.dir === 'P2E' ? 'eth' : 'pulse';
+  await sendTx(chainKey, v.target, v.calldata);
+  chime('honor');
+  toast('marker honored ✓');
+  refresh();
+}
+
+const honoredSeen = new Set();
+let honoredPrimed = false;
+async function refresh() {
+  try {
+    STATUS = await (await fetch(CFG.relayerApi + '/api/status')).json();
+    $('relayDot').classList.add('on');
+    $('relayState').textContent = short(STATUS.relayer);
+  } catch {
+    STATUS = null;
+    $('relayDot').classList.remove('on');
+    $('relayState').textContent = 'OFFLINE';
+  }
+  checkExcomm();
+  refreshHighTable();
+  const list = $('txList');
+  if (!account) { list.innerHTML = '<div class="empty">connect a wallet to see your markers</div>'; return; }
+  let vouchers = null;
+  try { vouchers = await (await fetch(`${CFG.relayerApi}/api/vouchers?address=${account}`)).json(); }
+  catch {}
+
+  // chime when one of MY markers newly flips to honored (prime silently first load)
+  if (vouchers) {
+    const nowHonored = vouchers.filter(v => v.claimed).map(v => v.dir + v.nonce);
+    if (honoredPrimed) {
+      for (const k of nowHonored) if (!honoredSeen.has(k)) chime('honor');
+    }
+    nowHonored.forEach(k => honoredSeen.add(k));
+    honoredPrimed = true;
+  }
+
+  let pending = loadPending().filter(p => Date.now() - p.ts < 86400e3);
+  if (vouchers) {
+    pending = pending.filter(p => !vouchers.some(v => v.dir === p.dir && v.nonce === p.nonce));
+    savePending(pending);
+  }
+
+  const heights = {};
+  for (const chain of new Set(pending.map(p => p.srcChain))) {
+    try { heights[chain] = parseInt(await rpc(chain, 'eth_blockNumber', []), 16); } catch {}
+  }
+
+  if (!pending.length && (!vouchers || !vouchers.length)) {
+    list.innerHTML = vouchers ? '<div class="empty">no markers yet — make a crossing</div>'
+                              : '<div class="empty">relayer unreachable</div>';
+    return;
+  }
+  list.innerHTML = '';
+
+  for (const p of pending) {
+    const row = document.createElement('div');
+    row.className = 'tx';
+    const dir = dirLabel(p.dir);
+    const need = confNeeded(p.srcChain, p);
+    const seen = heights[p.srcChain] !== undefined ? Math.max(0, heights[p.srcChain] - p.block) : null;
+    let prog;
+    if (need === null || seen === null) prog = 'crossing…';
+    else if (seen >= need) prog = 'SIGNING…';
+    else {
+      const blockSec = CFG[p.srcChain].blockSec ?? (p.srcChain === 'pulse' ? 10 : 12);
+      const eta = (need - seen) * blockSec;
+      prog = `CONF ${seen}/${need}` + (eta > 0 ? ` · ~${eta}s` : '');
+    }
+    row.innerHTML = `
+      <span class="coin">⏳</span>
+      <span class="dir">${dir}</span>
+      <span class="amt">${fmtUnits(p.amount, p.decimals)} ${esc(p.symbol || '')}</span>
+      ${p.txHash ? `<span class="addr">${scanLink(p.srcChain, 'tx', p.txHash, 'tx ↗')}</span>` : ''}
+      <span class="stat-cell"><span class="badge cross">${prog}</span></span>`;
+    list.appendChild(row);
+  }
+
+  for (const v of vouchers || []) {
+    const row = document.createElement('div');
+    row.className = 'tx';
+    const dir = dirLabel(v.dir);
+    const amount = fmtUnits(v.amount, v.decimals ?? 18);
+    const badge = v.claimed
+      ? `<span class="badge done">${v.autoClaimTx ? 'HONORED ⚡' : 'HONORED'}</span>`
+      : (v.express ? '<span class="badge wait">⚡ HONORING…</span>' : '<span class="badge wait">READY</span>');
+    const srcChain = v.dir === 'P2E' ? 'pulse' : 'eth';
+    const srcTx = v.lockTx || v.burnTx;
+    row.innerHTML = `
+      <span class="coin">◉</span>
+      <span class="dir">${dir}</span>
+      <span class="amt">${amount} ${esc(v.symbol || '')}</span>
+      <span class="addr">→ ${short(v.to)}</span>
+      ${srcTx ? `<span class="addr">${scanLink(srcChain, 'tx', srcTx, 'src ↗')}</span>` : ''}
+      ${v.autoClaimTx ? `<span class="addr">${scanLink(v.dir === 'P2E' ? 'eth' : 'pulse', 'tx', v.autoClaimTx, 'claim ↗')}</span>` : ''}
+      <span class="ago">${timeago(v.issuedAt)}</span>
+      <span class="stat-cell">${badge}</span>`;
+    if (!v.claimed) {
+      const b = document.createElement('button');
+      b.className = 'claim-btn';
+      b.textContent = 'CASH MARKER';
+      b.onclick = () => doClaim(v).catch(e => toast(e.message || String(e), true));
+      row.querySelector('.stat-cell').appendChild(b);
+    } else if (v.dir === 'E2P' && CFG.wick && v.token && v.token.toLowerCase() !== CFG.wick.address.toLowerCase()) {
+      // arrived on PulseChain — offer a one-tap swap into WICK (user's own wallet)
+      const a = document.createElement('a');
+      a.className = 'claim-btn';
+      a.style.textDecoration = 'none';
+      a.textContent = '🔥 → WICK';
+      a.title = 'Swap what you received into WICK on PulseX';
+      a.href = (CFG.wick.swapUrl || 'https://pulsex.mypinata.cloud/ipfs/#/swap') +
+        `?inputCurrency=${v.token}&outputCurrency=${CFG.wick.address}`;
+      a.target = '_blank'; a.rel = 'noopener noreferrer';
+      row.querySelector('.stat-cell').appendChild(a);
+    }
+    list.appendChild(row);
+  }
+}
+
+// ------- wiring -------
+function switchTab(tab) {
+  $('tabP2E').classList.toggle('active', tab === 'P2E');
+  $('tabE2P').classList.toggle('active', tab === 'E2P');
+  $('segThumb').classList.toggle('right', tab === 'E2P');
+  $('panelP2E').style.display = tab === 'P2E' ? '' : 'none';
+  $('panelE2P').style.display = tab === 'E2P' ? '' : 'none';
+}
+
+async function boot() {
+  // no-store: config.json carries the LIVE vault/minter addresses. A stale
+  // edge- or browser-cached copy would silently point users at a retired
+  // contract, so this one fetch must never be served from cache.
+  try {
+    const r = await fetch('config.json', { cache: 'no-store' });
+    if (!r.ok) throw new Error(`config.json returned ${r.status}`);
+    CFG = await r.json();
+  } catch (e) {
+    document.body.innerHTML =
+      '<div style="max-width:640px;margin:16vh auto;padding:0 24px;font:15px/1.6 ' +
+      '-apple-system,Segoe UI,system-ui,sans-serif;color:#0c1a13">' +
+      '<h1 style="font-size:22px;margin-bottom:10px">Bridge configuration missing</h1>' +
+      '<p style="color:#5f6f68">This deployment has no readable <code>config.json</code>, so the ' +
+      'bridge does not know which contracts to talk to. Nothing was sent and no funds are at risk.</p>' +
+      '<p style="color:#8a9b93;font-size:13px">Operator: run <code>node deploy/make-config.mjs</code> ' +
+      'and publish <code>ui/config.json</code>. (' + esc(e.message || e) + ')</p></div>';
+    return;
+  }
+  document.title = CFG.title || 'WICK BRIDGE';
+  applyChainLabels();   // every chain name on the page comes from config
+  $('btnConnect').onclick = () => connect().catch(e => toast(e.message, true));
+  $('tabP2E').onclick = () => switchTab('P2E');
+  $('tabE2P').onclick = () => switchTab('E2P');
+  $('swapP2E').onclick = () => switchTab('E2P');
+  $('swapE2P').onclick = () => switchTab('P2E');
+  for (const r of document.querySelectorAll('input[name=asset]')) r.onchange = refreshLockPanel;
+  $('lockToken').onchange = refreshLockPanel;
+  $('lockAmount').oninput = () => { renderNetPreview(); validateLock(); refreshApproveState().catch(() => {}); };
+  $('burnAmount').oninput = () => { validateBurn(); renderBurnPreview(); };
+  $('lockMax').onclick = async () => {
+    if (!account) return;
+    if (lockMeta.native) {
+      const b = await nativeBal('pulse', account);
+      const keep = 10n ** 18n / 2n;
+      $('lockAmount').value = fmtUnits(b > keep ? b - keep : 0n, 18);
+    } else if (lockMeta.addr) {
+      $('lockAmount').value = fmtUnits(await balOf('pulse', lockMeta.addr, account), lockMeta.decimals);
+    }
+    renderNetPreview();
+    validateLock();
+    refreshApproveState().catch(() => {});
+  };
+  $('burnMax').onclick = async () => {
+    if (account && burnMeta) { $('burnAmount').value = fmtUnits(await balOf('eth', burnMeta.wrapped, account), burnMeta.decimals); validateBurn(); renderBurnPreview(); }
+  };
+  $('btnApprove').onclick = () => doApprove().catch(e => toast(e.message || String(e), true));
+  $('btnLock').onclick = () => doLock().catch(e => toast(e.message || String(e), true));
+  $('burnToken').onchange = refreshBurnPanel;
+  $('btnBurn').onclick = () => doBurn().catch(e => toast(e.message || String(e), true));
+  // sound toggle
+  setSound(soundOn);
+  $('soundBtn').onclick = () => setSound(!soundOn);
+
+  // PWA install
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault(); deferredPrompt = e; $('installBtn').style.display = '';
+  });
+  $('installBtn').onclick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null; $('installBtn').style.display = 'none';
+  };
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+  // stealth privacy (only if this bridge has an announcer deployed)
+  if (CFG.pulse && CFG.pulse.announcer) {
+    $('privacySection').style.display = '';
+    $('btnReveal').onclick = () => revealMeta().catch(e => toast(e.message || String(e), true));
+    $('btnScan').onclick = () => scanPrivate().catch(e => toast(e.message || String(e), true));
+    $('lockPrivate').onchange = () => {
+      const on = $('lockPrivate').checked;
+      $('lockTo').placeholder = on ? 'st:eth:0x… (recipient stealth meta-address)' : 'defaults to your address';
+      $('lockToHint').innerHTML = on
+        ? 'private: funds arrive at a fresh address only the recipient can spend. Hides <b>who</b> receives, not the amount.'
+        : '';
+      $('lockTo').value = '';
+    };
+  }
+
+  renderChips();
+  refreshLockPanel().catch(() => {});
+  loadToll();
+  refresh();
+  refreshStats();
+  setInterval(refresh, 3000);
+  setInterval(loadToll, 60000);
+  setInterval(refreshStats, 15000);
+}
+boot();
+</script>
 </body>
 </html>
