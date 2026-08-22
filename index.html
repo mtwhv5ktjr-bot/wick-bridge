@@ -4,58 +4,198 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WICK BRIDGE — coming soon</title>
-<meta name="theme-color" content="#eef1f0">
-<meta name="description" content="WICK BRIDGE — PulseChain ⇄ Ethereum. Not live yet.">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="description" content="WICK BRIDGE — PulseChain ⇄ Ethereum ⇄ Robinhood. Not live yet. Play the arcade while you wait.">
 <meta name="robots" content="noindex">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 46'%3E%3Cpath d='M15 2 C19 8 21 11 21 14.5 A6 6 0 0 1 9 14.5 C9 11 11 8 15 2 Z' fill='%2300c26f'/%3E%3Crect x='7' y='21' width='16' height='22' rx='2' fill='%230f2a0f' stroke='%23143914'/%3E%3C/svg%3E">
+<meta property="og:title" content="WICK BRIDGE — coming soon">
+<meta property="og:description" content="Safe passage across chains, warming up. Meanwhile: the arcade is open.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 46'%3E%3Cpath d='M15 2 C19 8 21 11 21 14.5 A6 6 0 0 1 9 14.5 C9 11 11 8 15 2 Z' fill='%2339ff14'/%3E%3Crect x='7' y='21' width='16' height='22' rx='2' fill='%230f2a0f' stroke='%23143914'/%3E%3C/svg%3E">
 <style>
   :root{
-    --bg:#eef1f0; --surface:#fff; --line:#e3eae7; --txt:#0c1a13;
-    --muted:#5f6f68; --faint:#8a9b93; --mint:#00c26f; --mint-soft:#00a75f;
-    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI Variable Display","Segoe UI",Inter,system-ui,sans-serif;
-    --mono:"SF Mono","Cascadia Mono",ui-monospace,Consolas,monospace;
+    --bg:#0a0a0a; --panel:#101010; --ink:#ececec; --mute:#8a8a8a; --dim:#565656;
+    --line:rgba(236,236,236,.12); --line-2:rgba(236,236,236,.28);
+    --hot:#ff4d00; --green:#39ff14; --green-dim:#8fe08a;
+    --sans:'Segoe UI Variable Display','Segoe UI',-apple-system,BlinkMacSystemFont,Inter,system-ui,sans-serif;
+    --mono:'Cascadia Mono','SF Mono',ui-monospace,Consolas,monospace;
+    --gut:clamp(18px,5vw,64px);
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{color-scheme:light}
-  body{background:var(--bg);color:var(--txt);font:16px/1.6 var(--sans);
-    -webkit-font-smoothing:antialiased;min-height:100vh;display:grid;place-items:center;padding:24px;
-    background-image:radial-gradient(900px 460px at 50% -10%,rgba(0,194,111,.07),transparent 62%)}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;
-    box-shadow:0 22px 60px rgba(12,26,19,.10);max-width:560px;width:100%;padding:clamp(28px,5vw,44px);text-align:center}
-  .mark{width:44px;height:44px;margin:0 auto 20px;display:block}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{color-scheme:dark}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--sans);
+    -webkit-font-smoothing:antialiased; min-height:100vh; overflow-x:hidden;
+    background-image:
+      radial-gradient(900px 500px at 50% -8%, rgba(57,255,20,.07), transparent 62%),
+      radial-gradient(700px 420px at 92% 108%, rgba(255,77,0,.06), transparent 60%);
+  }
+  #embers{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .wrap{position:relative;z-index:1;max-width:1040px;margin:0 auto;padding:0 var(--gut)}
+
+  /* hero */
+  .hero{text-align:center;padding:clamp(56px,11vh,120px) 0 30px}
+  .candle{width:44px;height:64px;margin:0 auto 22px;display:block;filter:drop-shadow(0 0 14px rgba(57,255,20,.55))}
   .flame{transform-origin:15px 16px;animation:flick 1.15s infinite}
-  @keyframes flick{0%,100%{transform:scale(1)}23%{transform:scale(.93,1.07)}48%{transform:scale(1.04,.95)}72%{transform:scale(.96,1.08)}}
-  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:650;
-    color:var(--mint-soft);background:#e7f6ef;border:1px solid #cdeade;border-radius:100px;padding:6px 14px;margin-bottom:20px}
-  h1{font-size:clamp(26px,4.4vw,36px);line-height:1.1;letter-spacing:-.025em;font-weight:800;margin-bottom:14px;text-wrap:balance}
-  p{color:var(--muted);font-size:15.5px;max-width:44ch;margin:0 auto 10px}
-  .soon{margin-top:26px;padding-top:22px;border-top:1px solid var(--line);
-    font:500 12.5px var(--mono);color:var(--faint);letter-spacing:.02em}
-  .soon a{color:var(--mint-soft);text-decoration:none;border-bottom:1px solid #cdeade}
-  @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+  @keyframes flick{0%,100%{transform:scale(1) skewX(0);opacity:1}23%{transform:scale(.92,1.08) skewX(-3deg);opacity:.92}48%{transform:scale(1.05,.95) skewX(2deg)}72%{transform:scale(.95,1.09) skewX(-2deg);opacity:.96}}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font:600 12px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+    color:var(--green-dim);background:rgba(57,255,20,.07);border:1px solid rgba(57,255,20,.24);border-radius:100px;padding:8px 15px}
+  h1{font-size:clamp(38px,7vw,82px);line-height:.98;letter-spacing:-.04em;font-weight:800;margin:22px auto 16px;max-width:14ch;text-wrap:balance}
+  h1 .g{color:var(--green)}
+  .lede{color:var(--mute);font-size:clamp(15px,1.7vw,19px);line-height:1.55;max-width:52ch;margin:0 auto}
+  .chains{display:flex;gap:10px 14px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+  .chip{font:600 12px var(--mono);letter-spacing:.06em;color:var(--ink);background:var(--panel);
+    border:1px solid var(--line);border-radius:100px;padding:8px 16px}
+  .chip b{color:var(--green-dim)}
+
+  /* meanwhile */
+  .rule{display:flex;align-items:baseline;gap:16px;margin:clamp(48px,8vw,86px) 0 22px;
+    border-top:1px solid var(--line);padding-top:14px;font:600 12px var(--mono);letter-spacing:.16em;text-transform:uppercase}
+  .rule .i{color:var(--hot)}
+  .rule .t{color:var(--ink)}
+  .rule .r{margin-left:auto;color:var(--dim)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;padding-bottom:20px}
+  .card{position:relative;display:block;background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:20px 20px 18px;transition:border-color .15s,transform .15s,background .15s;overflow:hidden}
+  .card:hover{border-color:var(--line-2);transform:translateY(-3px);background:#141414}
+  .card .ic{font-size:26px;line-height:1;display:block;margin-bottom:14px}
+  .card h3{font-size:17px;font-weight:700;letter-spacing:-.02em;margin-bottom:5px;display:flex;align-items:center;gap:8px}
+  .card h3 .ar{color:var(--hot);transition:transform .16s cubic-bezier(.2,.7,.3,1)}
+  .card:hover h3 .ar{transform:translateX(4px)}
+  .card p{color:var(--mute);font-size:13.5px;line-height:1.5}
+  .card .host{margin-top:12px;font:500 11px var(--mono);letter-spacing:.04em;color:var(--dim)}
+  .card.feat{border-color:rgba(255,77,0,.3);background:linear-gradient(160deg,rgba(255,77,0,.06),transparent 60%)}
+  .card.feat h3 .ar{color:var(--hot)}
+
+  /* safety */
+  .safe{margin:34px 0 10px;border:1px solid rgba(255,77,0,.28);background:rgba(255,77,0,.05);border-radius:14px;
+    padding:16px 18px;color:var(--mute);font-size:13.5px;line-height:1.55;display:flex;gap:12px;align-items:flex-start}
+  .safe .b{font-size:18px;line-height:1.2}
+  .safe b{color:var(--ink)}
+
+  footer{border-top:1px solid var(--line);margin-top:34px;padding:20px 0 60px;
+    display:flex;gap:8px 20px;flex-wrap:wrap;justify-content:center;font:500 12px var(--mono);color:var(--dim);letter-spacing:.04em}
+  footer a{color:var(--mute);text-decoration:none;border-bottom:1px dotted var(--line-2)}
+  footer a:hover{color:var(--green-dim)}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-  <main class="card">
-    <svg class="mark" viewBox="0 0 30 46" aria-hidden="true">
+<canvas id="embers" aria-hidden="true"></canvas>
+
+<main class="wrap">
+  <section class="hero">
+    <svg class="candle" viewBox="0 0 30 46" aria-hidden="true">
       <g class="flame">
-        <path d="M15 2 C19 8 21 11 21 14.5 A6 6 0 0 1 9 14.5 C9 11 11 8 15 2 Z" fill="#00c26f" opacity=".9"/>
+        <path d="M15 2 C19 8 21 11 21 14.5 A6 6 0 0 1 9 14.5 C9 11 11 8 15 2 Z" fill="#39ff14" opacity=".9"/>
         <path d="M15 8 C17 11 18 12.5 18 14.5 A3 3 0 0 1 12 14.5 C12 12.5 13 11 15 8 Z" fill="#eaffe0"/>
       </g>
       <rect x="14" y="16" width="2" height="5" fill="#8a7223"/>
       <rect x="7" y="21" width="16" height="22" rx="2" fill="#0f2a0f" stroke="#143914"/>
+      <rect x="7" y="21" width="16" height="5" rx="2" fill="#1f7a1f" opacity=".5"/>
     </svg>
-
-    <span class="eyebrow">● PulseChain ⇄ Ethereum</span>
-    <h1>WICK Bridge is not live yet.</h1>
-    <p>The contracts are not deployed and nothing here can move funds. When the
-       bridge opens, this page becomes the bridge.</p>
-    <p><strong>Do not send anything to this domain or to any address claiming to be
-       this bridge.</strong> There is nothing to send to yet.</p>
-
-    <div class="soon">
-      bridge.wick.pics · <a href="https://wick.pics">wick.pics</a> · <a href="https://games.wick.pics">games.wick.pics</a>
+    <span class="eyebrow">● PulseChain ⇄ Ethereum ⇄ Robinhood</span>
+    <h1>The bridge is <span class="g">warming&nbsp;up</span>.</h1>
+    <p class="lede">Safe passage across chains — locked down, tested, and nearly open. It isn't live yet, so there's nothing to send here today. Come back soon.</p>
+    <div class="chains">
+      <span class="chip"><b>PulseChain</b></span>
+      <span class="chip"><b>Ethereum</b></span>
+      <span class="chip"><b>Robinhood</b></span>
     </div>
-  </main>
+  </section>
+
+  <div class="rule">
+    <span class="i">▸</span><span class="t">While you wait — the arcade is open</span><span class="r">games.wick.pics</span>
+  </div>
+
+  <section class="grid">
+    <a class="card feat" href="https://games.wick.pics/play/">
+      <span class="ic">🐸</span>
+      <h3>PEPE WICK <span class="ar">→</span></h3>
+      <p>The John-Wick-frog belt-scroller. NFT guns, a world leaderboard, and a daily contract.</p>
+      <div class="host">games.wick.pics/play</div>
+    </a>
+    <a class="card" href="https://games.wick.pics/range/">
+      <span class="ic">🎯</span>
+      <h3>Arsenal Range <span class="ar">→</span></h3>
+      <p>Members-only 3D range. Live-fire your actual NFT guns and bolt on mods at the gunsmith.</p>
+      <div class="host">games.wick.pics/range</div>
+    </a>
+    <a class="card" href="https://games.wick.pics/siege/">
+      <span class="ic">🏰</span>
+      <h3>Continental Siege <span class="ar">→</span></h3>
+      <p>Tower defense on the Continental. Hold the line, wave after wave.</p>
+      <div class="host">games.wick.pics/siege</div>
+    </a>
+    <a class="card" href="https://games.wick.pics/horde/">
+      <span class="ic">🏃</span>
+      <h3>PEPE Horde Road <span class="ar">→</span></h3>
+      <p>The crowd-runner made real — a ten-level campaign plus a daily gauntlet.</p>
+      <div class="host">games.wick.pics/horde</div>
+    </a>
+    <a class="card" href="https://games.wick.pics/arsenal/">
+      <span class="ic">🔫</span>
+      <h3>WICK Arsenal <span class="ar">→</span></h3>
+      <p>Mint and trade the on-chain NFT guns that power every cabinet.</p>
+      <div class="host">games.wick.pics/arsenal</div>
+    </a>
+    <a class="card" href="https://games.wick.pics">
+      <span class="ic">🕹️</span>
+      <h3>The Arcade <span class="ar">→</span></h3>
+      <p>Every cabinet under one roof — the back-alley arcade hall.</p>
+      <div class="host">games.wick.pics</div>
+    </a>
+    <a class="card" href="https://wick.pics">
+      <span class="ic">🕯️</span>
+      <h3>$WICK <span class="ar">→</span></h3>
+      <p>The token behind it all, on PulseChain.</p>
+      <div class="host">wick.pics</div>
+    </a>
+    <a class="card" href="https://mint.wick.pics">
+      <span class="ic">✨</span>
+      <h3>Mint <span class="ar">→</span></h3>
+      <p>Mint WICK Arsenal guns and gear.</p>
+      <div class="host">mint.wick.pics</div>
+    </a>
+  </section>
+
+  <div class="safe">
+    <span class="b">⚠️</span>
+    <div><b>Nothing to send here yet.</b> The bridge contracts aren't open to the public,
+      and this page can't move funds. Don't send anything to this domain, or to any address
+      claiming to be this bridge, until it's officially live.</div>
+  </div>
+</main>
+
+<footer>
+  <span>bridge.wick.pics</span>
+  <a href="https://games.wick.pics">games</a>
+  <a href="https://wick.pics">wick.pics</a>
+  <a href="https://mint.wick.pics">mint</a>
+  <span>coming soon</span>
+</footer>
+
+<script>
+/* ember drift — decorative, honors reduced-motion */
+(function(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var cv=document.getElementById('embers'), ctx=cv.getContext('2d'), W,H,parts=[];
+  function resize(){ W=cv.width=innerWidth; H=cv.height=innerHeight; }
+  resize(); addEventListener('resize', resize, {passive:true});
+  function spawn(){ return {x:Math.random()*W, y:H+10, r:.8+Math.random()*1.9, vy:.22+Math.random()*.6,
+    vx:(Math.random()-.5)*.25, a:.05+Math.random()*.22, hot:Math.random()<.35, ph:Math.random()*6.28}; }
+  for(var i=0;i<40;i++){ var p=spawn(); p.y=Math.random()*H; parts.push(p); }
+  (function tick(){
+    ctx.clearRect(0,0,W,H);
+    for(var i=0;i<parts.length;i++){ var p=parts[i];
+      p.y-=p.vy; p.x+=p.vx+Math.sin(p.y/60+p.ph)*.18;
+      if(p.y<-12) Object.assign(p, spawn());
+      ctx.globalAlpha=p.a*Math.min(1,p.y/240);
+      ctx.fillStyle=p.hot?'#ff4d00':'#39ff14';
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,7); ctx.fill();
+    }
+    ctx.globalAlpha=1; requestAnimationFrame(tick);
+  })();
+})();
+</script>
 </body>
 </html>
