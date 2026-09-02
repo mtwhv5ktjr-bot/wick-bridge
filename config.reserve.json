@@ -23,20 +23,6 @@
   "tokens": [],
   "pairs": [
     {
-      "key": "DAI",
-      "a": {
-        "chain": 369,
-        "token": "0xefD766cCb38EaF1dfd701853BFCe31359239F305",
-        "decimals": 18
-      },
-      "b": {
-        "chain": 1,
-        "token": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-        "decimals": 18
-      },
-      "minWhole": 50
-    },
-    {
       "key": "ETH",
       "a": {
         "chain": 369,
