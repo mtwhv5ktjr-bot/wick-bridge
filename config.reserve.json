@@ -43,7 +43,7 @@
     "short": "PULSE",
     "chainId": 369,
     "rpc": "https://rpc.pulsechain.com",
-    "vault": "0xfA15F4248485DA12cB6e807eA6Ce89D6Db8310D9",
+    "vault": "0x889dbd293F675F46D7046F95C28287E9f2e2a323",
     "explorer": "https://scan.pulsechain.com",
     "blockSec": 10,
     "currency": {
@@ -57,7 +57,7 @@
     "short": "ETH",
     "chainId": 1,
     "rpc": "https://eth.drpc.org",
-    "vault": "0x2eF0d9e11f1F960f1aa00fDCAe58bDDcA59dE47a",
+    "vault": "0x4cd911Ee89aa4b5Fb2E4DdC0084B91bACA4Fff7C",
     "explorer": "https://etherscan.io",
     "blockSec": 12,
     "currency": {

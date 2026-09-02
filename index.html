@@ -254,6 +254,8 @@ const SEL = {
   lock:'0x4bbc170a', lockNative:'0x24c026a2',
   release:'0x353a25c0',   // release(address,address,uint256,uint256,bytes) — the ONLY claim shape we will sign
   feeBps:'0x24a9d853',
+  burnBps:'0x53deb3d6',   // the vault skims feeBps AND burnBps at lock — the page nets out BOTH
+  feeCap:'0x075b6e33',    // feeCap() — the frozen ceiling this vault enforces (5% on BridgeReserveVault)
 };
 const NATIVE = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 const MAXU = 'f'.repeat(64);
@@ -415,18 +417,24 @@ async function onDirChange(){
   refreshFee();
 }
 
-// Live toll on the SOURCE vault. Reserve lanes run at 0; if it is ever re-armed
-// the page must show the real number and the real net amount, never a
-// hardcoded "0%".
+// Live toll on the SOURCE vault = feeBps + burnBps (the vault skims BOTH at
+// lock). Read from chain on every direction change; if the read fails the page
+// says so and BLOCKS deposits — never a hardcoded "0%" over a gross amount.
 async function refreshFee(){
   const el=$('feeRow'); if(!el||!cur) return;
   try{
     const raw=await ethCall(cur.fromSlot.rpc,cur.fromSlot.vault,SEL.feeBps);
-    const bps=Number(BigInt(raw||'0x0')); cur._feeBps=bps;
-    if(bps===0){ el.textContent='0% (no swap spread)'; el.className='good'; }
-    else { el.textContent=`${(bps/100).toFixed(2)}% toll on deposit`; el.className=''; }
-  }catch{ cur._feeBps=null; }
-  recompute();
+    let burn=0; try{ const b=await ethCall(cur.fromSlot.rpc,cur.fromSlot.vault,SEL.burnBps); if(b&&b!=='0x') burn=Number(BigInt(b)); }catch{}
+    const bps=Number(BigInt(raw||'0x0'))+burn; cur._feeBps=bps;
+    // the ceiling is frozen in the vault's bytecode (feeCap); show it next to the
+    // live toll so nobody has to take "at most 5%" on trust. Pre-hook vaults
+    // have no feeCap() — then only the live toll is shown.
+    let cap=null; try{ const c=await ethCall(cur.fromSlot.rpc,cur.fromSlot.vault,SEL.feeCap); if(c&&c!=='0x') cap=Number(BigInt(c)); }catch{}
+    const capTxt = cap!==null ? ` · max ${(cap/100).toFixed(0)}% (frozen on-chain)` : '';
+    if(bps===0){ el.textContent='0% (no swap spread)'+capTxt; el.className='good'; }
+    else { el.textContent=`${(bps/100).toFixed(2)}% toll on deposit${capTxt}`; el.className=''; }
+  }catch{ cur._feeBps=null; el.textContent='toll unreadable — retrying'; el.className=''; }
+  recompute(); updateCta();
 }
 
 function recompute(){
@@ -434,7 +442,7 @@ function recompute(){
   let amt=null; try{ if(raw) amt=parseUnits(raw,cur.from.decimals); }catch{}
   // receive = deposit net of any live toll (0 on reserve lanes) — read from chain, never assumed
   const net = (amt!==null && cur._feeBps) ? amt - (amt*BigInt(cur._feeBps))/10000n : amt;
-  $('recvAmt').textContent = raw && amt!==null ? fmtWhole(net,cur.from.decimals) : '0.0';
+  $('recvAmt').textContent = cur._feeBps===null ? '—' : (raw && amt!==null ? fmtWhole(net,cur.from.decimals) : '0.0');
   // min warning
   const wb=$('warnBox'); let msg='';
   if(raw && amt!==null){
@@ -503,6 +511,7 @@ function updateCta(){
   if(PRELAUNCH){ b.textContent='Deposits open soon — do not send funds'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
   // wrong relay lane (see pollRelay): a deposit from here would never get its voucher
   if(WRONGLANE){ b.textContent='Wrong relay lane — do not send funds'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
+  if(cur && cur._feeBps===null){ b.textContent='Toll unreadable — check your connection'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
   if(!account){ b.textContent='Connect wallet'; b.disabled=false; b.className='cta'; b.onclick=connect; return; }
   const raw=$('amount').value.trim(); let amt=null; try{ if(raw) amt=parseUnits(raw,cur.from.decimals);}catch{}
   if(!amt||amt<=0n){ b.textContent='Enter an amount'; b.disabled=true; b.className='cta'; return; }
@@ -516,6 +525,7 @@ function updateCta(){
 async function doBridge(){
   if(PRELAUNCH) return toast('Deposits are not open yet — please do not send funds. Check back soon.',true);
   if(WRONGLANE) return toast('This page is pointed at the wrong relay lane — do not send funds.',true);
+  if(cur._feeBps===null) return toast('The live toll could not be read from the vault — not sending.',true);
   const b=$('cta'); const raw=$('amount').value.trim();
   let amt; try{ amt=parseUnits(raw,cur.from.decimals);}catch{ return toast('bad amount',true); }
   if(amt<=0n) return toast('enter an amount',true);
