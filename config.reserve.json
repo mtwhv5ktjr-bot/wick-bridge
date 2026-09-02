@@ -1,0 +1,66 @@
+{
+  "title": "WICK RESERVE BRIDGE",
+  "mode": "reserve",
+  "relayerApi": "https://bridge-relay.wick.pics",
+  "tokens": [],
+  "pairs": [
+    {
+      "key": "DAI",
+      "a": {
+        "chain": 369,
+        "token": "0xefD766cCb38EaF1dfd701853BFCe31359239F305",
+        "decimals": 18
+      },
+      "b": {
+        "chain": 1,
+        "token": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        "decimals": 18
+      },
+      "minWhole": 50
+    },
+    {
+      "key": "ETH",
+      "a": {
+        "chain": 369,
+        "token": "0x02DcdD04e3F455D838cd1249292C58f3B79e3C3C",
+        "decimals": 18
+      },
+      "b": {
+        "chain": 1,
+        "token": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "decimals": 18,
+        "native": true
+      },
+      "minWhole": 0.02
+    }
+  ],
+  "pulse": {
+    "name": "PulseChain",
+    "short": "PULSE",
+    "chainId": 369,
+    "rpc": "https://rpc.pulsechain.com",
+    "vault": "0xfA15F4248485DA12cB6e807eA6Ce89D6Db8310D9",
+    "explorer": "https://scan.pulsechain.com",
+    "blockSec": 10,
+    "currency": {
+      "name": "Pulse",
+      "symbol": "PLS",
+      "decimals": 18
+    }
+  },
+  "eth": {
+    "name": "Ethereum",
+    "short": "ETH",
+    "chainId": 1,
+    "rpc": "https://eth.drpc.org",
+    "vault": "0x2eF0d9e11f1F960f1aa00fDCAe58bDDcA59dE47a",
+    "explorer": "https://etherscan.io",
+    "blockSec": 12,
+    "currency": {
+      "name": "Ether",
+      "symbol": "ETH",
+      "decimals": 18
+    }
+  },
+  "preLaunch": true
+}
