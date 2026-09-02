@@ -251,10 +251,20 @@
       <p style="margin:0"><b style="color:var(--txt)">No, if</b> the amount is large or you can wait. The official bridges cost a fraction of this and are the right tool when time is not the point. Size your crossing to the reserve shown above: anything larger queues until the reserve refills, and the fee applies either way.</p>
     </div>
   </div>
+
+  <div class="trust" style="margin-top:22px">
+    <h3>Where the fee goes</h3>
+    <div style="font-size:13px;color:var(--muted);line-height:1.6">
+      <p style="margin:0 0 8px"><b style="color:var(--txt)">Half of it buys $WICK and burns it.</b> The rest funds the reserves that make instant crossings possible — deeper reserves mean bigger crossings clear without queuing.</p>
+      <p style="margin:0">This is the operator's commitment, not a contract rule: the vault sends the whole fee to the treasury below, and the buy-and-burn is executed from there. Both addresses are public, so the burns are checkable on-chain.</p>
+      <div id="feeFlow" style="margin-top:10px"></div>
+    </div>
+  </div>
 </main>
 
 <footer>
   <b>Never a wrapped IOU.</b> Releases come from real, pre-seeded inventory. If a transfer exceeds the current reserve it safely queues and clears as inventory replenishes — funds are never lost. Always check the vault addresses above on the explorer before sending.
+  <div style="margin-top:9px"><a href="/stats/">See live activity and reserves →</a></div>
 </footer>
 
 <div id="toast"></div>
@@ -393,6 +403,24 @@ function renderTrust(){
     const link = s.explorer ? `<a href="${s.explorer}/address/${s.vault}" target="_blank" rel="noopener">${short(s.vault)} ↗</a>` : `<span class="num">${short(s.vault)}</span>`;
     row.innerHTML=`<span>${s.name} vault</span>${link}`; box.appendChild(row);
   }
+}
+// Where the fee goes: the vault pays the WHOLE toll to feeTo (read live from
+// the source vault, so this can never drift from the chain), and the operator
+// buys + burns $WICK with half of it. Showing both addresses is what makes the
+// commitment checkable rather than a claim.
+const WICK = '0x8CDaf3d630Da9E1450832924D5701CC0500E9cfC';   // Green Wick, PulseChain
+const DEAD = '0x000000000000000000000000000000000000dEaD';
+async function renderFeeFlow(){
+  const box=$('feeFlow'); if(!box||!cur) return;
+  let feeTo=null;
+  try{ const raw=await ethCall(cur.fromSlot.rpc,cur.fromSlot.vault,'0x017e7e58'); if(raw&&raw!=='0x') feeTo='0x'+raw.slice(-40); }catch{}
+  const pls = (CFG.pulse&&Number(CFG.pulse.chainId)===369) ? CFG.pulse : (Number(CFG.eth?.chainId)===369 ? CFG.eth : null);
+  const wickLink = pls?.explorer ? `<a href="${pls.explorer}/token/${WICK}" target="_blank" rel="noopener">$WICK ↗</a>` : '$WICK';
+  const burnLink = pls?.explorer ? `<a href="${pls.explorer}/address/${DEAD}" target="_blank" rel="noopener">burn address ↗</a>` : 'burn address';
+  const src = cur.fromSlot;
+  const treaLink = (feeTo && src.explorer) ? `<a href="${src.explorer}/address/${feeTo}" target="_blank" rel="noopener">${short(feeTo)} ↗</a>` : (feeTo?`<span class="num">${short(feeTo)}</span>`:'—');
+  box.innerHTML = `<div class="row2"><span>Fee is paid to</span>${treaLink}</div>`
+    + `<div class="row2"><span>Half buys and burns</span><span>${wickLink} → ${burnLink}</span></div>`;
 }
 const txLink=(chainId,hash,label)=>{ const s=slotForChain(chainId); return (s&&s.explorer&&/^0x[0-9a-f]{64}$/i.test(hash||''))?`<a href="${s.explorer}/tx/${hash}" target="_blank" rel="noopener">${label} ↗</a>`:''; };
 // HTML-escape anything that came from an RPC (token symbol()) or the relayer before it touches innerHTML
@@ -795,7 +823,7 @@ async function boot(){
     if(PRELAUNCH) $('prelaunch').classList.add('show');
     $('dir').innerHTML='<option>Loading assets…</option>';
     renderLanes();
-    renderTrust();
+    renderTrust(); renderFeeFlow();
     await buildDirs();
     renderFlights();
     pollRelay(); setInterval(pollRelay,15000);
