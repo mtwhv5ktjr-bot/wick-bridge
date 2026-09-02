@@ -123,7 +123,14 @@ const LANES = [
   { key:'plsrh',   label:'PulseChain ⇄ Robinhood', href:'../plsrh/' },
 ];
 const NATIVE = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-const SEL = { lockedOf:'0x4c7d0ec2', balanceOf:'0x70a08231' };
+const SEL = { lockedOf:'0xa5f1e282', balanceOf:'0x70a08231' };
+// The whitelisted reserve assets, so a side can be labelled exactly rather than
+// guessed from the pair key (eWETH and eDAI are the OmniBridge-backed forms).
+const ASSET = {
+  '0x02dcdd04e3f455d838cd1249292c58f3b79e3c3c': 'eWETH',
+  '0xefd766ccb38eaf1dfd701853bfce31359239f305': 'eDAI',
+  '0x6b175474e89094c44da98b954eedeac495271d0f': 'DAI',
+};
 const pad = h => h.replace(/^0x/,'').toLowerCase().padStart(64,'0');
 const fmt = (wei, dec=18, places=4) => {
   let s = BigInt(wei).toString().padStart(dec+1,'0');
@@ -179,8 +186,11 @@ async function loadLane(L){
     const side = pair ? [pair.a, pair.b].find(x => Number(x.chain) === Number(s.chainId)) : null;
     if (!side) continue;
     let owed = null;
-    try { owed = await reserveOf(s.rpc, s.vault, side.token); } catch {}
-    out.sides.push({ name:s.name || s.label || slot, short:s.short||'', owed, sym: side.token.toLowerCase()===NATIVE.toLowerCase() ? (s.currency||'ETH') : (pair.key.startsWith('DAI')?'DAI':'WETH'), vault:s.vault, explorer:s.explorer });
+    const rpcUrl = Array.isArray(s.rpc) ? s.rpc[0] : s.rpc;      // configs carry either shape
+    try { owed = await reserveOf(rpcUrl, s.vault, side.token); } catch {}
+    const isNative = side.token.toLowerCase() === NATIVE.toLowerCase();
+    const sym = isNative ? (s.currency?.symbol || s.currency || 'ETH') : (ASSET[side.token.toLowerCase()] || pair.key);
+    out.sides.push({ name:s.name || s.label || slot, short:s.short||'', owed, sym, vault:s.vault, explorer:s.explorer });
   }
   return out;
 }
