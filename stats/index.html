@@ -73,7 +73,7 @@
 <body>
 <header><div class="bar">
   <div class="brand"><span class="logo"><svg viewBox="0 0 32 32"><path d="M8 22 L16 8 L24 22" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span> WICK BRIDGE</div>
-  <a class="back" href="/">← Bridge</a>
+  <a class="back" href="../">← Bridge</a>
 </div></header>
 
 <main>
@@ -114,10 +114,13 @@
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// Paths are RELATIVE to this page (which lives at <site>/stats/). Absolute
+// paths only resolve on the custom domain and break under any subpath — which
+// is exactly what happens on the github.io preview URL.
 const LANES = [
-  { key:'reserve', label:'PulseChain ⇄ Ethereum', href:'/' },
-  { key:'rh',      label:'Ethereum ⇄ Robinhood',  href:'/rh/' },
-  { key:'plsrh',   label:'PulseChain ⇄ Robinhood', href:'/plsrh/' },
+  { key:'reserve', label:'PulseChain ⇄ Ethereum',  href:'../' },
+  { key:'rh',      label:'Ethereum ⇄ Robinhood',   href:'../rh/' },
+  { key:'plsrh',   label:'PulseChain ⇄ Robinhood', href:'../plsrh/' },
 ];
 const NATIVE = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 const SEL = { lockedOf:'0x4c7d0ec2', balanceOf:'0x70a08231' };
