@@ -1,0 +1,69 @@
+{
+  "title": "WICK RESERVE // PLSRH",
+  "mode": "reserve",
+  "lane": "plsrh",
+  "lanes": [
+    {
+      "key": "reserve",
+      "label": "PulseChain ⇄ Ethereum",
+      "href": "/"
+    },
+    {
+      "key": "rh",
+      "label": "Ethereum ⇄ Robinhood",
+      "href": "/rh/"
+    },
+    {
+      "key": "plsrh",
+      "label": "PulseChain ⇄ Robinhood",
+      "href": "/plsrh/"
+    }
+  ],
+  "relayerApi": "https://bridge-relay.wick.pics/plsrh",
+  "tokens": [],
+  "pairs": [
+    {
+      "key": "ETH-PLS-RH",
+      "a": {
+        "chain": 369,
+        "token": "0x02DcdD04e3F455D838cd1249292C58f3B79e3C3C",
+        "decimals": 18
+      },
+      "b": {
+        "chain": 4663,
+        "token": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "decimals": 18,
+        "native": true
+      },
+      "minWhole": 0.02
+    }
+  ],
+  "pulse": {
+    "name": "PulseChain",
+    "short": "PULSE",
+    "chainId": 369,
+    "rpc": "https://rpc.pulsechain.com",
+    "vault": "0xbefA7274b4FbE2604e5aaC8f9Ebf72054c93B293",
+    "explorer": "https://scan.pulsechain.com",
+    "blockSec": 10,
+    "currency": {
+      "name": "Pulse",
+      "symbol": "PLS",
+      "decimals": 18
+    }
+  },
+  "eth": {
+    "name": "Robinhood Chain",
+    "short": "RH",
+    "chainId": 4663,
+    "rpc": "https://rpc.mainnet.chain.robinhood.com",
+    "vault": "0xC4ff1De47627c5C57C0a7F4bc9570d8d87Fa5918",
+    "explorer": "https://robinhoodchain.blockscout.com",
+    "blockSec": 0.1,
+    "currency": {
+      "name": "Ether",
+      "symbol": "ETH",
+      "decimals": 18
+    }
+  }
+}
