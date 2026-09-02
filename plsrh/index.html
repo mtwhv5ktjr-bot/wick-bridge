@@ -327,6 +327,11 @@ const OFFICIAL = {
   '1>369':  { name:'PulseChain bridge',  time:'30–90 min', mins:30 },
   '1>4663': { name:'Arbitrum canonical', time:'~10 min',   mins:10 },
   '4663>1': { name:'Arbitrum canonical', time:'7 days (challenge period)', mins:10080 },
+  // PulseChain <-> Robinhood has NO direct official route: you would bridge via
+  // Ethereum, so the honest comparison is both legs added together — and coming
+  // OUT of Robinhood that includes the 7-day challenge period.
+  '369>4663': { name:'two hops via Ethereum', time:'40–100 min', mins:40 },
+  '4663>369': { name:'two hops via Ethereum', time:'7+ days (challenge period)', mins:10080 },
 };
 
 // typical time = source-side confirmations x block time; Ethereum waits for finality (~2 epochs)
