@@ -148,6 +148,12 @@
   .flight .links a{color:var(--neon-d); text-decoration:none; font-weight:600}
   .flight .links a:hover{text-decoration:underline}
 
+  /* lane switcher: one page per lane, links appear for lanes that are published */
+  .lanes{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 16px}
+  .lanes a,.lanes .cur{font:600 12px/1 system-ui; padding:7px 11px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--muted); text-decoration:none}
+  .lanes a:hover{color:var(--txt); border-color:var(--neon)}
+  .lanes .cur{background:var(--neon-soft); color:var(--neon-d); border-color:rgba(0,194,111,.35)}
+
   /* pre-launch gate: the site is live, deposits are not (config.preLaunch) */
   .prelaunch{display:none; margin:0 0 18px; padding:13px 15px; border-radius:13px; background:#fdf3e3; border:1px solid #f0c98a; color:#6b4300; font-size:14px; line-height:1.5; box-shadow:var(--shadow)}
   .prelaunch.show{display:block}
@@ -175,6 +181,7 @@
 </header>
 
 <main>
+  <nav class="lanes" id="lanes" aria-label="Bridge lanes"></nav>
   <div class="prelaunch" id="prelaunch"><b>⚠ Not open yet — do not send funds.</b> The reserve is being funded and the relay is not live. Deposits are <b>disabled</b> until launch. The vault addresses and mechanics shown below are real, so you can verify them on the explorers now — check back soon.</div>
   <div class="eyebrow">Reserve lanes · real assets, 1:1</div>
   <h1>Move real value across chains — <span style="color:var(--neon-d)">unchanged</span>.</h1>
@@ -257,7 +264,7 @@ const isAddr = a => /^0x[0-9a-fA-F]{40}$/.test(a||'');
 const short = a => a ? a.slice(0,6)+'…'+a.slice(-4) : '';
 const eqAddr = (a,b) => (a||'').toLowerCase() === (b||'').toLowerCase();
 
-let CFG=null, DIRS=[], cur=null, account=null, walletChain=null, SYMS={}, DECS={}, STATUS=null, PRELAUNCH=false;
+let CFG=null, DIRS=[], cur=null, account=null, walletChain=null, SYMS={}, DECS={}, STATUS=null, PRELAUNCH=false, WRONGLANE=false;
 
 // ---- relay health (header pill) + lane status (drives the ETA row) ----
 async function pollRelay(){
@@ -265,9 +272,19 @@ async function pollRelay(){
   try{
     const r=await fetch(`${CFG.relayerApi}/api/health`,{cache:'no-store'});
     const h = r.status===200 ? await r.json() : null;          // 503 = unhealthy, 429 = throttled: never "online"
-    const ok = !!h && h.ok===true && !h.stale;
-    el.className = ok?'on':'off'; txt.textContent = ok?'relay online':(r.status===429?'relay busy':'relay degraded');
+    let ok = !!h && h.ok===true && !h.stale;
     if(!STATUS){ STATUS=await fetch(`${CFG.relayerApi}/api/status`,{cache:'no-store'}).then(r=>r.json()).catch(()=>null); updateEta(); }
+    // WRONG LANE: this page's relayerApi must answer for THIS lane. A config whose
+    // public URL lost its path prefix would show the ROOT lane's health here while
+    // deposits made from this page never get their vouchers — so it hard-blocks.
+    const wrong = !!STATUS && !!CFG.lane && !!STATUS.lane && STATUS.lane!==CFG.lane;
+    if(wrong!==WRONGLANE){
+      WRONGLANE=wrong;
+      if(wrong){ const p=$('prelaunch'); if(p){ p.textContent='This page is pointed at the wrong relay lane — do not send funds.'; p.classList.add('show'); } }
+      updateCta();
+    }
+    if(wrong) ok=false;
+    el.className = ok?'on':'off'; txt.textContent = ok?'relay online':(wrong?'relay: wrong lane':(r.status===429?'relay busy':'relay degraded'));
   }catch{ el.className='off'; txt.textContent='relay offline'; }
 }
 // typical time = source-side confirmations x block time; Ethereum waits for finality (~2 epochs)
@@ -279,6 +296,23 @@ function updateEta(){
   if(Number(cur.from.chain)===1) mins=Math.max(mins,13);
   el.textContent=`~${mins} min after deposit`;
 }
+// lane switcher: the current lane as a pill, other lanes as links — but only
+// the ones actually published (a HEAD on their config), so nothing dead-links.
+async function renderLanes(){
+  const nav=$('lanes'); if(!nav||!Array.isArray(CFG.lanes)) return;
+  nav.innerHTML='';
+  for(const l of CFG.lanes){
+    if(!l||typeof l.href!=='string'||!/^\/[a-z0-9\/-]*$/i.test(l.href)) continue; // same-site paths only
+    if(l.key===CFG.lane){ const s=document.createElement('span'); s.className='cur'; s.textContent=l.label; nav.appendChild(s); continue; }
+    try{
+      const r=await fetch(l.href+'config.reserve.json',{method:'HEAD',cache:'no-store'});
+      if(!r.ok) continue;
+      const a=document.createElement('a'); a.href=l.href; a.textContent=l.label; nav.appendChild(a);
+    }catch{}
+  }
+  if(nav.children.length<2) nav.style.display='none';
+}
+
 // "verify before you send": the two vault addresses as explorer links
 function renderTrust(){
   const box=$('trustRows'); if(!box) return; box.innerHTML='';
@@ -343,7 +377,7 @@ function decodeStr(hex){
   const b=hex.replace(/^0x/,'');
   // dynamic string: offset(32) len(32) data
   if(b.length>=128){ try{ const len=parseInt(b.slice(64,128),16); const d=b.slice(128,128+len*2); return hexToUtf8(d);}catch{} }
-  return hexToUtf8(b).replace(/ +$/,''); // bytes32 style
+  return hexToUtf8(b).replace(/\u0000+$/,''); // bytes32 style
 }
 function hexToUtf8(h){ let s=''; for(let i=0;i<h.length;i+=2){ const c=parseInt(h.substr(i,2),16); if(c) s+=String.fromCharCode(c);} try{return decodeURIComponent(escape(s));}catch{return s;} }
 
@@ -467,6 +501,8 @@ function updateCta(){
   const b=$('cta');
   // pre-launch: the site is up for verification, deposits are hard-disabled
   if(PRELAUNCH){ b.textContent='Deposits open soon — do not send funds'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
+  // wrong relay lane (see pollRelay): a deposit from here would never get its voucher
+  if(WRONGLANE){ b.textContent='Wrong relay lane — do not send funds'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
   if(!account){ b.textContent='Connect wallet'; b.disabled=false; b.className='cta'; b.onclick=connect; return; }
   const raw=$('amount').value.trim(); let amt=null; try{ if(raw) amt=parseUnits(raw,cur.from.decimals);}catch{}
   if(!amt||amt<=0n){ b.textContent='Enter an amount'; b.disabled=true; b.className='cta'; return; }
@@ -479,6 +515,7 @@ function updateCta(){
 // ---------- the crossing ----------
 async function doBridge(){
   if(PRELAUNCH) return toast('Deposits are not open yet — please do not send funds. Check back soon.',true);
+  if(WRONGLANE) return toast('This page is pointed at the wrong relay lane — do not send funds.',true);
   const b=$('cta'); const raw=$('amount').value.trim();
   let amt; try{ amt=parseUnits(raw,cur.from.decimals);}catch{ return toast('bad amount',true); }
   if(amt<=0n) return toast('enter an amount',true);
@@ -677,6 +714,7 @@ async function boot(){
     PRELAUNCH = CFG.preLaunch===true;
     if(PRELAUNCH) $('prelaunch').classList.add('show');
     $('dir').innerHTML='<option>Loading assets…</option>';
+    renderLanes();
     renderTrust();
     await buildDirs();
     renderFlights();

@@ -1,6 +1,24 @@
 {
   "title": "WICK RESERVE BRIDGE",
   "mode": "reserve",
+  "lane": "reserve",
+  "lanes": [
+    {
+      "key": "reserve",
+      "label": "PulseChain ⇄ Ethereum",
+      "href": "/"
+    },
+    {
+      "key": "rh",
+      "label": "Ethereum ⇄ Robinhood",
+      "href": "/rh/"
+    },
+    {
+      "key": "plsrh",
+      "label": "PulseChain ⇄ Robinhood",
+      "href": "/plsrh/"
+    }
+  ],
   "relayerApi": "https://bridge-relay.wick.pics",
   "tokens": [],
   "pairs": [
