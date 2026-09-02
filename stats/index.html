@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WICK BRIDGE — Activity</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Live activity for the WICK BRIDGE reserve lanes: crossings, volume, reserve levels and relay health, read from the chains and the relayers.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2300c26f'/%3E%3Cpath d='M9 21 L16 9 L23 21' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+  /* same clean-light system as the bridge page */
+  :root{
+    --bg:#eef1f0; --surface:#fff; --surface-2:#f5f8f7;
+    --line:#dde5e0; --line-2:#e7edea;
+    --txt:#0c1a13; --muted:#5c6f64; --faint:#89968c;
+    --neon:#00c26f; --neon-d:#00a75f; --neon-soft:rgba(0,194,111,.12);
+    --gold:#c2922a; --danger:#c0392b; --warn:#b8791b;
+    --shadow:0 1px 2px rgba(12,26,19,.04), 0 10px 30px -18px rgba(12,26,19,.22);
+    --mono:"SFMono-Regular",ui-monospace,"IBM Plex Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{color-scheme:light}
+  body{margin:0; background:var(--bg); color:var(--txt); font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+       line-height:1.55; font-size:16px; -webkit-font-smoothing:antialiased;
+       background-image:radial-gradient(720px 380px at 88% -6%, rgba(0,194,111,.10), transparent 60%); background-attachment:fixed; min-height:100vh}
+  .num{font-family:var(--mono); font-variant-numeric:tabular-nums}
+  a{color:var(--neon-d)}
+
+  header{position:sticky; top:0; z-index:9; background:rgba(238,241,240,.82); backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
+  .bar{max-width:900px; margin:0 auto; padding:13px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:750}
+  .logo{width:26px; height:26px; border-radius:7px; background:linear-gradient(150deg,var(--neon),var(--neon-d)); display:grid; place-items:center}
+  .logo svg{width:16px;height:16px}
+  .back{font-size:13px; font-weight:600}
+
+  main{max-width:900px; margin:0 auto; padding:26px 18px 70px}
+  .eyebrow{font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--neon-d); font-weight:700}
+  h1{font-size:26px; line-height:1.12; margin:10px 0 6px; letter-spacing:-.01em}
+  .lede{color:var(--muted); font-size:14.5px; margin:0 0 22px}
+
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:22px}
+  @media(max-width:720px){ .kpis{grid-template-columns:repeat(2,1fr)} }
+  .kpi{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px; box-shadow:var(--shadow)}
+  .kpi .k{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); font-weight:700}
+  .kpi .v{font:700 24px/1.1 var(--mono); margin-top:7px; letter-spacing:-.02em}
+  .kpi .s{font-size:12px; color:var(--muted); margin-top:5px}
+
+  h2{font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:26px 0 11px}
+  .lanes{display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:12px}
+  .lane{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:15px; box-shadow:var(--shadow)}
+  .lane h3{margin:0 0 3px; font-size:15px}
+  .lane .sub{font-size:12px; color:var(--faint); margin-bottom:11px}
+  .row{display:flex; justify-content:space-between; gap:10px; font-size:13.5px; padding:5px 0; border-top:1px solid var(--line-2)}
+  .row:first-of-type{border-top:0}
+  .row span:first-child{color:var(--muted)}
+  .row span:last-child{font-weight:600; text-align:right}
+  .dot{display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:6px; vertical-align:middle}
+  .on{background:var(--neon)} .off{background:var(--danger)} .warn{background:var(--warn)}
+  .bar2{height:6px; border-radius:99px; background:var(--surface-2); border:1px solid var(--line-2); overflow:hidden; margin-top:7px}
+  .bar2 i{display:block; height:100%; background:linear-gradient(90deg,var(--neon),var(--neon-d))}
+
+  table{width:100%; border-collapse:collapse; font-size:13px; background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:var(--shadow)}
+  th{text-align:left; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); padding:10px 12px; border-bottom:1px solid var(--line)}
+  td{padding:10px 12px; border-top:1px solid var(--line-2)}
+  td.n{font-family:var(--mono); font-variant-numeric:tabular-nums}
+  .pill{display:inline-block; font:600 11px/1 system-ui; padding:4px 8px; border-radius:99px; background:var(--surface-2); border:1px solid var(--line-2); color:var(--muted)}
+  .pill.ok{color:var(--neon-d); border-color:rgba(0,194,111,.35); background:var(--neon-soft)}
+  .pill.wait{color:var(--warn); border-color:rgba(184,121,27,.3); background:rgba(184,121,27,.08)}
+  .empty{padding:22px 14px; text-align:center; color:var(--muted); font-size:13.5px; background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow)}
+  .foot{margin-top:26px; font-size:12px; color:var(--faint); line-height:1.6}
+  .scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <div class="brand"><span class="logo"><svg viewBox="0 0 32 32"><path d="M8 22 L16 8 L24 22" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span> WICK BRIDGE</div>
+  <a class="back" href="/">← Bridge</a>
+</div></header>
+
+<main>
+  <div class="eyebrow">Live activity</div>
+  <h1>Is anyone using it?</h1>
+  <p class="lede">Everything here is read live from the vaults on-chain and from each lane's relayer. Nothing is stored or estimated — when a number is unknown it says so.</p>
+
+  <div class="kpis">
+    <div class="kpi"><div class="k">Crossings</div><div class="v num" id="kCross">—</div><div class="s" id="kCrossSub">all lanes, all time</div></div>
+    <div class="kpi"><div class="k">Volume moved</div><div class="v num" id="kVol">—</div><div class="s" id="kVolSub">summed per asset</div></div>
+    <div class="kpi"><div class="k">Reserves live</div><div class="v num" id="kRes">—</div><div class="s" id="kResSub">across every vault</div></div>
+    <div class="kpi"><div class="k">Lanes up</div><div class="v num" id="kUp">—</div><div class="s" id="kUpSub">relay reachable</div></div>
+  </div>
+
+  <h2>Lanes</h2>
+  <div class="lanes" id="lanes"><div class="empty">Loading lanes…</div></div>
+
+  <h2>Recent crossings</h2>
+  <div id="recentWrap"><div class="empty">Loading…</div></div>
+
+  <h2>Where the fees go</h2>
+  <div class="lane">
+    <div class="row"><span>Half of every fee</span><span>buys <b>$WICK</b> and burns it</span></div>
+    <div class="row"><span>The other half</span><span>funds the reserves</span></div>
+    <div class="row"><span>$WICK</span><span><a href="https://scan.pulsechain.com/token/0x8CDaf3d630Da9E1450832924D5701CC0500E9cfC" target="_blank" rel="noopener">0x8CDaf3…9cfC ↗</a></span></div>
+    <div class="row"><span>Burn address</span><span><a href="https://scan.pulsechain.com/address/0x000000000000000000000000000000000000dEaD" target="_blank" rel="noopener">0x…dEaD ↗</a></span></div>
+    <div style="font-size:12px;color:var(--faint);line-height:1.6;margin-top:9px">
+      The vault pays the whole fee to the treasury; the buy-and-burn is executed from there by the operator, so it is a stated commitment rather than a contract rule — and every burn lands at the address above where anyone can count it.
+    </div>
+  </div>
+
+  <div class="foot" id="foot">
+    Reserve figures are each vault's on-chain <span class="num">lockedOf</span> ledger. Crossings and volume come from each relayer's own voucher record,
+    so a lane whose relayer is offline reports no activity even though its vaults still hold the reserve.
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LANES = [
+  { key:'reserve', label:'PulseChain ⇄ Ethereum', href:'/' },
+  { key:'rh',      label:'Ethereum ⇄ Robinhood',  href:'/rh/' },
+  { key:'plsrh',   label:'PulseChain ⇄ Robinhood', href:'/plsrh/' },
+];
+const NATIVE = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+const SEL = { lockedOf:'0x4c7d0ec2', balanceOf:'0x70a08231' };
+const pad = h => h.replace(/^0x/,'').toLowerCase().padStart(64,'0');
+const fmt = (wei, dec=18, places=4) => {
+  let s = BigInt(wei).toString().padStart(dec+1,'0');
+  const i = s.slice(0, s.length-dec), f = s.slice(s.length-dec).slice(0,places).replace(/0+$/,'');
+  return f ? `${i}.${f}` : i;
+};
+const ago = ms => {
+  const s = Math.max(0, Math.round((Date.now()-ms)/1000));
+  if (s < 60) return s+'s ago';
+  if (s < 3600) return Math.round(s/60)+'m ago';
+  if (s < 86400) return Math.round(s/3600)+'h ago';
+  return Math.round(s/86400)+'d ago';
+};
+
+async function rpc(url, method, params){
+  const r = await fetch(url, { method:'POST', headers:{'content-type':'application/json'},
+    body: JSON.stringify({ jsonrpc:'2.0', id:1, method, params }) });
+  const j = await r.json();
+  if (j.error) throw new Error(j.error.message);
+  return j.result;
+}
+// lockedOf(address) — the vault's own debt ledger, i.e. the reserve it owes out
+async function reserveOf(rpcUrl, vault, token){
+  const data = SEL.lockedOf + pad(token);
+  const hex = await rpc(rpcUrl, 'eth_call', [{ to: vault, data }, 'latest']);
+  return BigInt(hex || '0x0');
+}
+const jget = async (url, ms=9000) => {
+  const c = new AbortController(); const t = setTimeout(()=>c.abort(), ms);
+  try { const r = await fetch(url, { cache:'no-store', signal:c.signal }); if(!r.ok) throw new Error(r.status); return await r.json(); }
+  finally { clearTimeout(t); }
+};
+
+async function loadLane(L){
+  const out = { ...L, ok:false };
+  try { out.cfg = await jget(L.href + 'config.reserve.json'); }
+  catch { out.missing = true; return out; }                 // lane not published yet
+  const api = out.cfg.relayerApi;
+  const [health, status, stats, vouchers] = await Promise.all([
+    jget(api + '/api/health').catch(()=>null),
+    jget(api + '/api/status').catch(()=>null),
+    jget(api + '/api/stats').catch(()=>null),
+    jget(api + '/api/vouchers').catch(()=>null),
+  ]);
+  out.health = health; out.status = status; out.stats = stats;
+  out.vouchers = Array.isArray(vouchers) ? vouchers : [];
+  out.ok = !!health && health.ok === true && !health.stale;
+  // live reserve per side, straight from the chains
+  out.sides = [];
+  for (const slot of ['pulse','eth']) {
+    const s = out.cfg[slot]; if (!s) continue;
+    const pair = (out.cfg.pairs||[])[0];
+    const side = pair ? [pair.a, pair.b].find(x => Number(x.chain) === Number(s.chainId)) : null;
+    if (!side) continue;
+    let owed = null;
+    try { owed = await reserveOf(s.rpc, s.vault, side.token); } catch {}
+    out.sides.push({ name:s.name || s.label || slot, short:s.short||'', owed, sym: side.token.toLowerCase()===NATIVE.toLowerCase() ? (s.currency||'ETH') : (pair.key.startsWith('DAI')?'DAI':'WETH'), vault:s.vault, explorer:s.explorer });
+  }
+  return out;
+}
+
+function laneCard(L){
+  if (L.missing) return `<div class="lane"><h3>${esc(L.label)}</h3><div class="sub">not published yet</div>
+    <div class="row"><span>Status</span><span><span class="dot warn"></span>not launched</span></div></div>`;
+  const st = L.stats || {};
+  const crossings = st.crossings ?? 0;
+  const vol = Object.values(st.tokens || {}).map(t => `${t.volume} ${t.symbol}`).join(', ') || '—';
+  const dot = L.ok ? 'on' : 'off';
+  const scanned = L.status ? Object.values(L.status.pulse?.scannedTo || {}).slice(-1)[0] : null;
+  const reb = L.status?.rebate;
+  const refunded = reb && reb.refunded ? Object.entries(reb.refunded).map(([k,v]) => `${fmt(v)} (${esc(k)})`).join(', ') : null;
+  return `<div class="lane">
+    <h3>${esc(L.label)}</h3>
+    <div class="sub">lane <span class="num">${esc(L.key)}</span> · <a href="${esc(L.href)}">open</a></div>
+    <div class="row"><span>Relay</span><span><span class="dot ${dot}"></span>${L.ok?'online':(L.health?'degraded':'unreachable')}</span></div>
+    <div class="row"><span>Crossings</span><span class="num">${crossings}</span></div>
+    <div class="row"><span>Volume</span><span class="num">${esc(vol)}</span></div>
+    ${L.sides.map(s => `<div class="row"><span>Reserve · ${esc(s.name)}</span><span class="num">${s.owed===null?'—':esc(fmt(s.owed))} ${esc(s.sym)}</span></div>`).join('')}
+    ${refunded ? `<div class="row"><span>Fees refunded</span><span class="num">${esc(refunded)}</span></div>` : ''}
+    ${st.avgClaimSec!=null ? `<div class="row"><span>Avg claim</span><span class="num">${st.avgClaimSec}s</span></div>` : ''}
+    ${scanned ? `<div class="row"><span>Scanned to</span><span class="num">${scanned}</span></div>` : ''}
+  </div>`;
+}
+
+function recentRows(lanes){
+  const all = [];
+  for (const L of lanes) for (const v of (L.vouchers||[])) all.push({ ...v, lane:L.label });
+  all.sort((a,b) => (b.issuedAt||0) - (a.issuedAt||0));
+  if (!all.length) return `<div class="empty">No crossings yet. When someone bridges, it shows up here within a minute.</div>`;
+  const rows = all.slice(0,25).map(v => {
+    const claimed = !!v.claimedAt;
+    const amt = v.amount ? fmt(v.amount, v.decimals ?? 18) : '—';
+    return `<tr>
+      <td>${esc(v.lane)}</td>
+      <td class="n">${esc(amt)} ${esc(v.symbol||'')}</td>
+      <td><span class="pill ${claimed?'ok':'wait'}">${claimed?'claimed':'awaiting claim'}</span>${v.queued?' <span class="pill">queued · fee refunded</span>':''}</td>
+      <td class="n">${v.issuedAt?esc(ago(v.issuedAt)):'—'}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="scroll"><table><thead><tr><th>Lane</th><th>Amount</th><th>State</th><th>Issued</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+async function load(){
+  const lanes = await Promise.all(LANES.map(loadLane));
+  $('lanes').innerHTML = lanes.map(laneCard).join('');
+  $('recentWrap').innerHTML = recentRows(lanes);
+
+  const live = lanes.filter(l => !l.missing);
+  const crossings = live.reduce((n,l) => n + (l.stats?.crossings ?? 0), 0);
+  $('kCross').textContent = crossings;
+  $('kCrossSub').textContent = `${live.length} lane${live.length===1?'':'s'} launched`;
+
+  const vol = {};
+  for (const l of live) for (const t of Object.values(l.stats?.tokens || {})) vol[t.symbol] = (vol[t.symbol]||0) + Number(t.volume||0);
+  const volTxt = Object.entries(vol).filter(([,v])=>v>0).map(([s,v]) => `${v.toFixed(4).replace(/0+$/,'').replace(/\.$/,'')} ${s}`).join(' · ');
+  $('kVol').textContent = volTxt || '0';
+  $('kVolSub').textContent = volTxt ? 'summed per asset' : 'nothing bridged yet';
+
+  const res = {};
+  for (const l of live) for (const s of l.sides||[]) if (s.owed!==null) res[s.sym] = (res[s.sym]||0n) + s.owed;
+  const resTxt = Object.entries(res).map(([s,v]) => `${fmt(v)} ${s}`).join(' · ');
+  $('kRes').textContent = resTxt || '—';
+  $('kResSub').textContent = `${live.reduce((n,l)=>n+(l.sides?.length||0),0)} vaults`;
+
+  const up = live.filter(l => l.ok).length;
+  $('kUp').textContent = `${up}/${live.length||0}`;
+  $('kUpSub').textContent = up === live.length && live.length ? 'all relays healthy' : 'a relay is down — crossings stall';
+}
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>
