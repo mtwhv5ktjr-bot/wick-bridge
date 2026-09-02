@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>WICK BRIDGE — Reserve</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="WICK BRIDGE reserve lanes — move real ETH 1:1 (more assets later) across PulseChain, Ethereum, and Robinhood. Same asset in, same asset out.">
+<meta name="description" content="Move small amounts across PulseChain, Ethereum and Robinhood in minutes for a 5% fee — paid out of a pre-funded reserve in the same asset, 1:1. The official bridges are cheaper and slower.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2300c26f'/%3E%3Cpath d='M9 21 L16 9 L23 21' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
   /* Clean-light fintech (WICK v3 tokens). Single committed light world,
@@ -80,6 +80,9 @@
   .info .good{color:var(--neon-d)}
   .warnbox{margin-top:12px; font-size:12.5px; color:var(--warn); background:rgba(184,121,27,.08); border:1px solid rgba(184,121,27,.25); border-radius:10px; padding:9px 11px; display:none}
   .warnbox.show{display:block}
+  /* what the fee buys — stated plainly, next to the number */
+  .feenote{margin-top:11px; font-size:12.5px; color:var(--muted); background:var(--surface-2); border:1px solid var(--line-2); border-radius:10px; padding:10px 11px; line-height:1.5}
+  .feenote b{color:var(--txt)}
 
   .cta{width:100%; margin-top:15px; padding:15px; border:0; border-radius:13px; background:linear-gradient(180deg,var(--neon),var(--neon-d)); color:#042; font:750 16px/1 system-ui; letter-spacing:.01em; cursor:pointer; box-shadow:0 10px 24px -10px rgba(0,194,111,.6); transition:filter .15s, transform .05s}
   .cta:hover:not(:disabled){filter:brightness(1.04)}
@@ -183,9 +186,9 @@
 <main>
   <nav class="lanes" id="lanes" aria-label="Bridge lanes"></nav>
   <div class="prelaunch" id="prelaunch"><b>⚠ Not open yet — do not send funds.</b> The reserve is being funded and the relay is not live. Deposits are <b>disabled</b> until launch. The vault addresses and mechanics shown below are real, so you can verify them on the explorers now — check back soon.</div>
-  <div class="eyebrow">Reserve lanes · real assets, 1:1</div>
-  <h1>Move real value across chains — <span style="color:var(--neon-d)">unchanged</span>.</h1>
-  <p class="lede">Send an asset on one chain, receive the <b>same asset</b> on another. No wrapped tokens, no swap rate. What you send is what you get.</p>
+  <div class="eyebrow">Small size · fast · same asset out</div>
+  <h1>Skip the wait. Pay <span style="color:var(--neon-d)">5%</span>.</h1>
+  <p class="lede">For moving <b>small amounts quickly</b>. The official bridges are cheaper and slow — this one pays you out of a pre-funded reserve in minutes, in the <b>same asset</b>. No wrapped tokens, no swap rate.</p>
 
   <div class="card" id="card">
     <div class="leg" id="fromLeg">
@@ -214,8 +217,10 @@
       <div class="l"><span>Bridge fee</span><span class="good" id="feeRow">0% (no swap spread)</span></div>
       <div class="l"><span>Minimum</span><span id="minRow">—</span></div>
       <div class="l"><span>Reserve available (destination)</span><span id="availRow">—</span></div>
-      <div class="l"><span>Typical time</span><span id="etaRow">—</span></div>
+      <div class="l"><span>Typical time</span><span class="good" id="etaRow">—</span></div>
+      <div class="l"><span>Official route instead</span><span id="offRow">—</span></div>
     </div>
+    <div class="feenote" id="feeNote"></div>
     <div class="warnbox" id="warnBox"></div>
 
     <button class="cta" id="cta" disabled>Connect wallet</button>
@@ -237,6 +242,14 @@
     <div class="step"><div class="n">STEP 1</div><div class="t">Deposit</div><div class="d">Your asset locks in the source vault. One signature.</div></div>
     <div class="step"><div class="n">STEP 2</div><div class="t">Signed</div><div class="d">After confirmations, 2-of-3 signers issue your release voucher.</div></div>
     <div class="step"><div class="n">STEP 3</div><div class="t">Claim</div><div class="d">Release the identical asset from the destination reserve — 1:1.</div></div>
+  </div>
+
+  <div class="trust" style="margin-top:22px">
+    <h3>Is this for you?</h3>
+    <div style="font-size:13px;color:var(--muted);line-height:1.6">
+      <p style="margin:0 0 8px"><b style="color:var(--txt)">Yes, if</b> you want a small amount on the other chain <b style="color:var(--txt)">now</b> — a gas top-up, a fill you do not want to miss, or getting out of Robinhood Chain without sitting out the 7-day withdrawal window. You are paying a fee to skip a wait.</p>
+      <p style="margin:0"><b style="color:var(--txt)">No, if</b> the amount is large or you can wait. The official bridges cost a fraction of this and are the right tool when time is not the point. Size your crossing to the reserve shown above: anything larger queues until the reserve refills, and the fee applies either way.</p>
+    </div>
   </div>
 </main>
 
@@ -289,14 +302,49 @@ async function pollRelay(){
     el.className = ok?'on':'off'; txt.textContent = ok?'relay online':(wrong?'relay: wrong lane':(r.status===429?'relay busy':'relay degraded'));
   }catch{ el.className='off'; txt.textContent='relay offline'; }
 }
+// What the SAME crossing costs you in time on the canonical route. These are the
+// operators' own published figures, not our estimates — the whole reason this
+// bridge exists is the gap between them and the row above.
+//   PulseChain OmniBridge: 30-90 min either way.
+//   Robinhood is an Arbitrum Orbit L2: deposits ~10 min, but withdrawals back to
+//   Ethereum sit out the 7-day fraud-proof challenge period.
+const OFFICIAL = {
+  '369>1':  { name:'PulseChain bridge',  time:'30–90 min' },
+  '1>369':  { name:'PulseChain bridge',  time:'30–90 min' },
+  '1>4663': { name:'Arbitrum canonical', time:'~10 min' },
+  '4663>1': { name:'Arbitrum canonical', time:'7 days (challenge period)' },
+};
+
 // typical time = source-side confirmations x block time; Ethereum waits for finality (~2 epochs)
 function updateEta(){
   const el=$('etaRow'); if(!el||!cur) return;
   const conf=STATUS?.[cur.fromSlot.key]?.confirmations, bs=Number(cur.fromSlot.blockSec||0);
-  if(!conf||!bs){ el.textContent='—'; return; }
-  let mins=Math.ceil(conf*bs/60);
-  if(Number(cur.from.chain)===1) mins=Math.max(mins,13);
-  el.textContent=`~${mins} min after deposit`;
+  let mins=null;
+  if(conf&&bs){ mins=Math.ceil(conf*bs/60); if(Number(cur.from.chain)===1) mins=Math.max(mins,13); }
+  el.textContent = mins===null ? '—' : `~${mins} min`;
+  // the honest comparison, right next to it
+  const off=$('offRow'); if(!off) return;
+  const o=OFFICIAL[`${Number(cur.from.chain)}>${Number(cur.to.chain)}`];
+  off.textContent = o ? `${o.time} · ${o.name}` : '—';
+  off.className = o && /day/.test(o.time) ? 'num' : '';
+  renderFeeNote(mins, o);
+}
+
+// The fee, said plainly. The toll is charged on EVERY deposit — including one
+// that has to queue — so the page must never imply it is conditional.
+function renderFeeNote(mins, off){
+  const el=$('feeNote'); if(!el||!cur) return;
+  const bps=cur._feeBps;
+  if(bps===null||bps===undefined){ el.textContent=''; return; }
+  const pct=(bps/100).toFixed(2).replace(/\.00$/,'');
+  const fast = mins!==null ? `~${mins} min` : 'minutes';
+  const slow = off ? `${off.time} on the ${off.name}` : 'far longer on the official route';
+  el.innerHTML = bps===0
+    ? `<b>No fee right now.</b> You receive exactly what you send.`
+    : `<b>The ${pct}% is what you pay for speed.</b> It is taken from every deposit, on the way in — the payout side never charges. `
+      + `You get ${esc(fast)} here instead of ${esc(slow)}. `
+      + `Not in a hurry? Use the official bridge and keep the ${pct}%. `
+      + `<b>Best for small amounts:</b> if you send more than the reserve above, the crossing queues until it is refilled — and the ${pct}% still applies.`;
 }
 // lane switcher: the current lane as a pill, other lanes as links — but only
 // the ones actually published (a HEAD on their config), so nothing dead-links.
@@ -434,7 +482,7 @@ async function refreshFee(){
     if(bps===0){ el.textContent='0% (no swap spread)'+capTxt; el.className='good'; }
     else { el.textContent=`${(bps/100).toFixed(2)}% toll on deposit${capTxt}`; el.className=''; }
   }catch{ cur._feeBps=null; el.textContent='toll unreadable — retrying'; el.className=''; }
-  recompute(); updateCta();
+  recompute(); updateCta(); updateEta();
 }
 
 function recompute(){
