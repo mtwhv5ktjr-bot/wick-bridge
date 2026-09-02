@@ -334,8 +334,13 @@ function updateEta(){
   renderFeeNote(mins, o);
 }
 
-// The fee, said plainly. The toll is charged on EVERY deposit — including one
-// that has to queue — so the page must never imply it is conditional.
+// Is the relayer refunding the toll on crossings it cannot serve instantly?
+// Read from /api/status, never assumed: if the daemon is not running that
+// policy, the page must not promise it.
+function rebateOn(){ return !!STATUS?.rebate?.enabled; }
+
+// The fee, said plainly. The vault takes the toll on EVERY deposit; only the
+// relayer's rebate policy gives it back, so the wording follows that policy.
 function renderFeeNote(mins, off){
   const el=$('feeNote'); if(!el||!cur) return;
   const bps=cur._feeBps;
@@ -343,7 +348,14 @@ function renderFeeNote(mins, off){
   const pct=(bps/100).toFixed(2).replace(/\.00$/,'');
   const fast = mins!==null ? `~${mins} min` : 'minutes';
   const slow = off ? `${esc(off.time)} on the ${esc(off.name)}` : 'far longer on the official route';
-  const queue = `<b>Best for small amounts:</b> if you send more than the reserve above, the crossing queues until it is refilled — and the ${pct}% still applies.`;
+  // The relayer refunds the toll on a crossing the reserve could not serve
+  // instantly — it vouchers the gross instead of the net. Say so only when the
+  // live relayer reports the policy on, so the page can never promise it alone.
+  const qb = STATUS?.rebate?.queuedFeeBps ?? 0;
+  const queue = rebateOn()
+    ? `<b>You only pay it if the reserve serves you instantly.</b> Send more than the reserve above and the crossing queues until it is refilled — `
+      + (qb === 0 ? `and the fee is refunded in full: you receive exactly what you sent.` : `and the fee drops to ${(qb/100).toFixed(2).replace(/\.00$/,'')}%.`)
+    : `<b>Best for small amounts:</b> if you send more than the reserve above, the crossing queues until it is refilled — and the ${pct}% still applies.`;
   const charged = `It is taken from every deposit, on the way in — the payout side never charges.`;
   // Only claim to be faster when this direction actually is.
   const weWin = !off || mins===null || mins < off.mins;
@@ -505,7 +517,8 @@ function recompute(){
   if(raw && amt!==null){
     const whole=Number(fmtUnits(amt,cur.from.decimals));
     if(whole>0 && whole < cur.min) msg=`Below the ${cur.min} ${cur.fromSym} minimum — small crossings cost more in gas than they're worth.`;
-    else if(cur._avail!=null && amt>cur._avail) msg=`Larger than the destination reserve (${fmtWhole(cur._avail,cur.to.decimals)} ${cur.toSym}). This is allowed — it will queue and clear as inventory replenishes, so it may take longer.`;
+    else if(cur._avail!=null && amt>cur._avail) msg=`Larger than the destination reserve (${fmtWhole(cur._avail,cur.to.decimals)} ${cur.toSym}). This is allowed — it will queue and clear as inventory replenishes, so it may take longer.`
+      + (rebateOn() ? ` Because you would be waiting, the fee is refunded: you receive the full ${fmtWhole(amt,cur.from.decimals)} ${cur.fromSym}.` : '');
   }
   wb.textContent=msg; wb.className='warnbox'+(msg?' show':'');
   updateCta();
