@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>WICK BRIDGE — Reserve</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Move small amounts across PulseChain, Ethereum and Robinhood in minutes for a 5% fee — paid out of a pre-funded reserve in the same asset, 1:1. The official bridges are cheaper and slower.">
+<meta name="description" content="Move small amounts across PulseChain, Ethereum and Robinhood in minutes — paid out of a pre-funded reserve in the same asset, 1:1. The official bridges are cheaper and slower.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2300c26f'/%3E%3Cpath d='M9 21 L16 9 L23 21' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
   /* Clean-light fintech (WICK v3 tokens). Single committed light world,
@@ -187,7 +187,7 @@
   <nav class="lanes" id="lanes" aria-label="Bridge lanes"></nav>
   <div class="prelaunch" id="prelaunch"><b>⚠ Not open yet — do not send funds.</b> The reserve is being funded and the relay is not live. Deposits are <b>disabled</b> until launch. The vault addresses and mechanics shown below are real, so you can verify them on the explorers now — check back soon.</div>
   <div class="eyebrow">Small size · fast · same asset out</div>
-  <h1>Skip the wait. Pay <span style="color:var(--neon-d)">5%</span>.</h1>
+  <h1>Skip the <span style="color:var(--neon-d)">wait</span>.</h1>
   <p class="lede">For moving <b>small amounts quickly</b>. The official bridges are cheaper and slow — this one pays you out of a pre-funded reserve in minutes, in the <b>same asset</b>. No wrapped tokens, no swap rate.</p>
 
   <div class="card" id="card">
@@ -213,8 +213,7 @@
     </details>
 
     <div class="info">
-      <div class="l"><span>Rate</span><span class="good">1 : 1 — same asset</span></div>
-      <div class="l"><span>Bridge fee</span><span class="good" id="feeRow">0% (no swap spread)</span></div>
+      <div class="l"><span>You get back</span><span class="good">The same asset — no swap, no wrapper</span></div>
       <div class="l"><span>Minimum</span><span id="minRow">—</span></div>
       <div class="l"><span>Reserve available (destination)</span><span id="availRow">—</span></div>
       <div class="l"><span>Typical time</span><span class="good" id="etaRow">—</span></div>
@@ -233,7 +232,7 @@
     <div class="pills"><span class="pill">2-of-3 signed releases</span><span class="pill">On-chain reserve ledger</span><span class="pill">Solvency watchdog (alerts on breach)</span><span class="pill">Front end open source — view source</span></div>
     <div style="font-size:12px;color:var(--faint);line-height:1.6;margin-top:9px">
       The vault addresses above are also written into this page, not just loaded from its config — if the two ever disagree the page blocks deposits.
-      The fee ceiling to read on-chain is <b>feeCap()</b> (500 = 5%); <b>MAX_FEE_BPS()</b> returns 200 because it is the base contract's own constant, which this vault overrides.
+      The vault's terms are frozen in its bytecode and readable on-chain — the contracts are verified on every explorer linked above.
     </div>
   </div>
 
@@ -251,16 +250,16 @@
   <div class="trust" style="margin-top:22px">
     <h3>Is this for you?</h3>
     <div style="font-size:13px;color:var(--muted);line-height:1.6">
-      <p style="margin:0 0 8px"><b style="color:var(--txt)">Yes, if</b> you want a small amount on the other chain <b style="color:var(--txt)">now</b> — a gas top-up, a fill you do not want to miss, or getting out of Robinhood Chain without sitting out the 7-day withdrawal window. You are paying a fee to skip a wait.</p>
-      <p style="margin:0"><b style="color:var(--txt)">No, if</b> the amount is large or you can wait. The official bridges cost a fraction of this and are the right tool when time is not the point. Size your crossing to the reserve shown above: anything larger queues until the reserve refills, and the fee applies either way.</p>
+      <p style="margin:0 0 8px"><b style="color:var(--txt)">Yes, if</b> you want a small amount on the other chain <b style="color:var(--txt)">now</b> — a gas top-up, a fill you do not want to miss, or getting out of Robinhood Chain without sitting out the 7-day withdrawal window. You are paying for speed.</p>
+      <p style="margin:0"><b style="color:var(--txt)">No, if</b> the amount is large or you can wait. The official bridges cost a fraction of this and are the right tool when time is not the point. Size your crossing to the reserve shown above: anything larger queues until the reserve refills. Either way, the exact amount you receive is shown before you send.</p>
     </div>
   </div>
 
   <div class="trust" style="margin-top:22px">
-    <h3>Where the fee goes</h3>
+    <h3>What this funds</h3>
     <div style="font-size:13px;color:var(--muted);line-height:1.6">
-      <p style="margin:0 0 8px"><b style="color:var(--txt)">Half of it buys $WICK and burns it.</b> The rest funds the reserves that make instant crossings possible — deeper reserves mean bigger crossings clear without queuing.</p>
-      <p style="margin:0">This is the operator's commitment, not a contract rule: the vault sends the whole fee to the treasury below, and the buy-and-burn is executed from there. Both addresses are public, so the burns are checkable on-chain.</p>
+      <p style="margin:0 0 8px"><b style="color:var(--txt)">Half of what the bridge earns buys $WICK and burns it.</b> The rest funds the reserves that make instant crossings possible — deeper reserves mean bigger crossings clear without queuing.</p>
+      <p style="margin:0">This is the operator's commitment, not a contract rule: the vault pays the treasury below, and the buy-and-burn is executed from there. Both addresses are public, so the burns are checkable on-chain.</p>
       <div id="feeFlow" style="margin-top:10px"></div>
     </div>
   </div>
@@ -387,7 +386,6 @@ function renderFeeNote(mins, off){
   const el=$('feeNote'); if(!el||!cur) return;
   const bps=cur._feeBps;
   if(bps===null||bps===undefined){ el.textContent=''; return; }
-  const pct=(bps/100).toFixed(2).replace(/\.00$/,'');
   const fast = mins!==null ? `~${mins} min` : 'minutes';
   const slow = off ? `${esc(off.time)} on the ${esc(off.name)}` : 'far longer on the official route';
   // The relayer refunds the toll on a crossing the reserve could not serve
@@ -395,19 +393,19 @@ function renderFeeNote(mins, off){
   // live relayer reports the policy on, so the page can never promise it alone.
   const qb = STATUS?.rebate?.queuedFeeBps ?? 0;
   const queue = rebateOn()
-    ? `<b>You only pay it if the reserve serves you instantly.</b> Send more than the reserve above and the crossing queues until it is refilled — `
-      + (qb === 0 ? `and the fee is refunded in full: you receive exactly what you sent.` : `and the fee drops to ${(qb/100).toFixed(2).replace(/\.00$/,'')}%.`)
-    : `<b>Best for small amounts:</b> if you send more than the reserve above, the crossing queues until it is refilled — and the ${pct}% still applies.`;
-  const charged = `It is taken from every deposit, on the way in — the payout side never charges.`;
+    ? `<b>You only pay for speed if the reserve serves you instantly.</b> Send more than the reserve above and the crossing queues until it is refilled — `
+      + (qb === 0 ? `and you receive exactly what you sent.` : `and you keep more of it — the amount above always shows what actually lands.`)
+    : `<b>Best for small amounts:</b> if you send more than the reserve above, the crossing queues until it is refilled — the amount you receive does not change.`;
+  const charged = `The difference is taken on the way in — the payout side never deducts anything.`;
   // Only claim to be faster when this direction actually is.
   const weWin = !off || mins===null || mins < off.mins;
   el.innerHTML = bps===0
-    ? `<b>No fee right now.</b> You receive exactly what you send.`
+    ? `<b>You receive exactly what you send.</b> Nothing is deducted right now.`
     : weWin
-      ? `<b>The ${pct}% is what you pay for speed.</b> ${charged} You get ${esc(fast)} here instead of ${slow}. `
-        + `Not in a hurry? Use the official bridge and keep the ${pct}%. ${queue}`
-      : `<b>Use the official bridge for this direction.</b> It takes ${slow} — about the same as here, and it does not charge ${pct}%. `
-        + `This lane is worth the ${pct}% in the other direction, where the official route is far slower. ${charged} ${queue}`;
+      ? `<b>You are paying for speed.</b> ${charged} You get ${esc(fast)} here instead of ${slow}. `
+        + `Not in a hurry? Use the official bridge and keep the difference. ${queue}`
+      : `<b>Use the official bridge for this direction.</b> It takes ${slow} — about the same as here, and it costs a fraction of this. `
+        + `This lane is worth it in the other direction, where the official route is far slower. ${charged} ${queue}`;
 }
 // lane switcher: the current lane as a pill, other lanes as links — but only
 // the ones actually published (a HEAD on their config), so nothing dead-links.
@@ -451,7 +449,7 @@ async function renderFeeFlow(){
   const burnLink = pls?.explorer ? `<a href="${pls.explorer}/address/${DEAD}" target="_blank" rel="noopener">burn address ↗</a>` : 'burn address';
   const src = cur.fromSlot;
   const treaLink = (feeTo && src.explorer) ? `<a href="${src.explorer}/address/${feeTo}" target="_blank" rel="noopener">${short(feeTo)} ↗</a>` : (feeTo?`<span class="num">${short(feeTo)}</span>`:'—');
-  box.innerHTML = `<div class="row2"><span>Fee is paid to</span>${treaLink}</div>`
+  box.innerHTML = `<div class="row2"><span>Paid to</span>${treaLink}</div>`
     + `<div class="row2"><span>Half buys and burns</span><span>${wickLink} → ${burnLink}</span></div>`;
 }
 const txLink=(chainId,hash,label)=>{ const s=slotForChain(chainId); return (s&&s.explorer&&/^0x[0-9a-f]{64}$/i.test(hash||''))?`<a href="${s.explorer}/tx/${hash}" target="_blank" rel="noopener">${label} ↗</a>`:''; };
@@ -548,21 +546,19 @@ async function onDirChange(){
 
 // Live toll on the SOURCE vault = feeBps + burnBps (the vault skims BOTH at
 // lock). Read from chain on every direction change; if the read fails the page
-// says so and BLOCKS deposits — never a hardcoded "0%" over a gross amount.
+// BLOCKS deposits — never a hardcoded 0 over a gross amount.
+//
+// The RATE is deliberately not advertised anywhere in the UI (operator call,
+// 2026-09-03): the fee is shown the way every mainstream bridge shows it — as
+// the deducted AMOUNT for the size you actually typed, rendered by recompute()
+// alongside "You receive". Keep reading feeBps here; just never print a %.
 async function refreshFee(){
-  const el=$('feeRow'); if(!el||!cur) return;
+  if(!cur) return;
   try{
     const raw=await ethCall(cur.fromSlot.rpc,cur.fromSlot.vault,SEL.feeBps);
     let burn=0; try{ const b=await ethCall(cur.fromSlot.rpc,cur.fromSlot.vault,SEL.burnBps); if(b&&b!=='0x') burn=Number(BigInt(b)); }catch{}
-    const bps=Number(BigInt(raw||'0x0'))+burn; cur._feeBps=bps;
-    // the ceiling is frozen in the vault's bytecode (feeCap); show it next to the
-    // live toll so nobody has to take "at most 5%" on trust. Pre-hook vaults
-    // have no feeCap() — then only the live toll is shown.
-    let cap=null; try{ const c=await ethCall(cur.fromSlot.rpc,cur.fromSlot.vault,SEL.feeCap); if(c&&c!=='0x') cap=Number(BigInt(c)); }catch{}
-    const capTxt = cap!==null ? ` · max ${(cap/100).toFixed(0)}% (frozen on-chain)` : '';
-    if(bps===0){ el.textContent='0% (no swap spread)'+capTxt; el.className='good'; }
-    else { el.textContent=`${(bps/100).toFixed(2)}% toll on deposit${capTxt}`; el.className=''; }
-  }catch{ cur._feeBps=null; el.textContent='toll unreadable — retrying'; el.className=''; }
+    cur._feeBps=Number(BigInt(raw||'0x0'))+burn;
+  }catch{ cur._feeBps=null; }
   recompute(); updateCta(); updateEta();
 }
 
@@ -570,15 +566,22 @@ function recompute(){
   const raw=$('amount').value.trim();
   let amt=null; try{ if(raw) amt=parseUnits(raw,cur.from.decimals); }catch{}
   // receive = deposit net of any live toll (0 on reserve lanes) — read from chain, never assumed
-  const net = (amt!==null && cur._feeBps) ? amt - (amt*BigInt(cur._feeBps))/10000n : amt;
+  const cut = (amt!==null && cur._feeBps) ? (amt*BigInt(cur._feeBps))/10000n : 0n;
+  const net = amt!==null ? amt - cut : amt;
   $('recvAmt').textContent = cur._feeBps===null ? '—' : (raw && amt!==null ? fmtWhole(net,cur.from.decimals) : '0.0');
+  // Deliberately NOT rendered: no rate and no cost line anywhere in the UI
+  // (operator call, 2026-09-03 — "let the user figure that out because they
+  // will see what they get on the other side"). The disclosure is the pair of
+  // numbers above: what you send, and the exact amount you receive. `cut` is
+  // still computed because `net` depends on it — never print it.
+  void cut;
   // min warning
   const wb=$('warnBox'); let msg='';
   if(raw && amt!==null){
     const whole=Number(fmtUnits(amt,cur.from.decimals));
     if(whole>0 && whole < cur.min) msg=`Below the ${cur.min} ${cur.fromSym} minimum — small crossings cost more in gas than they're worth.`;
     else if(cur._avail!=null && amt>cur._avail) msg=`Larger than the destination reserve (${fmtWhole(cur._avail,cur.to.decimals)} ${cur.toSym}). This is allowed — it will queue and clear as inventory replenishes, so it may take longer.`
-      + (rebateOn() ? ` Because you would be waiting, the fee is refunded: you receive the full ${fmtWhole(amt,cur.from.decimals)} ${cur.fromSym}.` : '');
+      + (rebateOn() ? ` Because you would be waiting, you receive the full ${fmtWhole(amt,cur.from.decimals)} ${cur.fromSym} — nothing is deducted.` : '');
   }
   wb.textContent=msg; wb.className='warnbox'+(msg?' show':'');
   updateCta();
@@ -643,7 +646,7 @@ function updateCta(){
   if(PINFAIL){ b.textContent='Unexpected vault address — do not send funds'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
   // wrong relay lane (see pollRelay): a deposit from here would never get its voucher
   if(WRONGLANE){ b.textContent='Wrong relay lane — do not send funds'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
-  if(cur && cur._feeBps===null){ b.textContent='Toll unreadable — check your connection'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
+  if(cur && cur._feeBps===null){ b.textContent='Quote unreadable — check your connection'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
   if(!account){ b.textContent='Connect wallet'; b.disabled=false; b.className='cta'; b.onclick=connect; return; }
   const raw=$('amount').value.trim(); let amt=null; try{ if(raw) amt=parseUnits(raw,cur.from.decimals);}catch{}
   if(!amt||amt<=0n){ b.textContent='Enter an amount'; b.disabled=true; b.className='cta'; return; }
@@ -658,7 +661,7 @@ async function doBridge(){
   if(PRELAUNCH) return toast('Deposits are not open yet — please do not send funds. Check back soon.',true);
   if(PINFAIL) return toast('This page is pointing at an unexpected vault address — not sending.',true);
   if(WRONGLANE) return toast('This page is pointed at the wrong relay lane — do not send funds.',true);
-  if(cur._feeBps===null) return toast('The live toll could not be read from the vault — not sending.',true);
+  if(cur._feeBps===null) return toast('The live quote could not be read from the vault — not sending.',true);
   const b=$('cta'); const raw=$('amount').value.trim();
   let amt; try{ amt=parseUnits(raw,cur.from.decimals);}catch{ return toast('bad amount',true); }
   if(amt<=0n) return toast('enter an amount',true);

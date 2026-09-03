@@ -94,14 +94,14 @@
   <h2>Recent crossings</h2>
   <div id="recentWrap"><div class="empty">Loading…</div></div>
 
-  <h2>Where the fees go</h2>
+  <h2>What this funds</h2>
   <div class="lane">
-    <div class="row"><span>Half of every fee</span><span>buys <b>$WICK</b> and burns it</span></div>
+    <div class="row"><span>Half of what the bridge earns</span><span>buys <b>$WICK</b> and burns it</span></div>
     <div class="row"><span>The other half</span><span>funds the reserves</span></div>
     <div class="row"><span>$WICK</span><span><a href="https://scan.pulsechain.com/token/0x8CDaf3d630Da9E1450832924D5701CC0500E9cfC" target="_blank" rel="noopener">0x8CDaf3…9cfC ↗</a></span></div>
     <div class="row"><span>Burn address</span><span><a href="https://scan.pulsechain.com/address/0x000000000000000000000000000000000000dEaD" target="_blank" rel="noopener">0x…dEaD ↗</a></span></div>
     <div style="font-size:12px;color:var(--faint);line-height:1.6;margin-top:9px">
-      The vault pays the whole fee to the treasury; the buy-and-burn is executed from there by the operator, so it is a stated commitment rather than a contract rule — and every burn lands at the address above where anyone can count it.
+      The vault pays the treasury; the buy-and-burn is executed from there by the operator, so it is a stated commitment rather than a contract rule — and every burn lands at the address above where anyone can count it.
     </div>
   </div>
 
@@ -212,7 +212,7 @@ function laneCard(L){
     <div class="row"><span>Crossings</span><span class="num">${crossings}</span></div>
     <div class="row"><span>Volume</span><span class="num">${esc(vol)}</span></div>
     ${L.sides.map(s => `<div class="row"><span>Reserve · ${esc(s.name)}</span><span class="num">${s.owed===null?'—':esc(fmt(s.owed))} ${esc(s.sym)}</span></div>`).join('')}
-    ${refunded ? `<div class="row"><span>Fees refunded</span><span class="num">${esc(refunded)}</span></div>` : ''}
+    ${refunded ? `<div class="row"><span>Refunded in full</span><span class="num">${esc(refunded)}</span></div>` : ''}
     ${st.avgClaimSec!=null ? `<div class="row"><span>Avg claim</span><span class="num">${st.avgClaimSec}s</span></div>` : ''}
     ${scanned ? `<div class="row"><span>Scanned to</span><span class="num">${scanned}</span></div>` : ''}
   </div>`;
@@ -229,7 +229,7 @@ function recentRows(lanes){
     return `<tr>
       <td>${esc(v.lane)}</td>
       <td class="n">${esc(amt)} ${esc(v.symbol||'')}</td>
-      <td><span class="pill ${claimed?'ok':'wait'}">${claimed?'claimed':'awaiting claim'}</span>${v.queued?' <span class="pill">queued · fee refunded</span>':''}</td>
+      <td><span class="pill ${claimed?'ok':'wait'}">${claimed?'claimed':'awaiting claim'}</span>${v.queued?' <span class="pill">queued · refunded in full</span>':''}</td>
       <td class="n">${v.issuedAt?esc(ago(v.issuedAt)):'—'}</td>
     </tr>`;
   }).join('');
