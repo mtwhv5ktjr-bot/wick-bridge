@@ -224,13 +224,17 @@
     <div class="warnbox" id="warnBox"></div>
 
     <button class="cta" id="cta" disabled>Connect wallet</button>
-    <div class="hint" id="hint">Non-custodial. You sign the deposit; you sign the release. Keys never leave your wallet.</div>
+    <div class="hint" id="hint">You sign the deposit and you sign the release — your keys never leave your wallet. Between the two, the reserve that pays you out is held by a 2-of-3 signer set, not by you.</div>
   </div>
 
   <div class="trust">
     <h3>Verify before you send</h3>
     <div id="trustRows"></div>
-    <div class="pills"><span class="pill">2-of-3 signed releases</span><span class="pill">On-chain reserve ledger</span><span class="pill">Solvency watchdog (alerts on breach)</span><span class="pill">Open source</span></div>
+    <div class="pills"><span class="pill">2-of-3 signed releases</span><span class="pill">On-chain reserve ledger</span><span class="pill">Solvency watchdog (alerts on breach)</span><span class="pill">Front end open source — view source</span></div>
+    <div style="font-size:12px;color:var(--faint);line-height:1.6;margin-top:9px">
+      The vault addresses above are also written into this page, not just loaded from its config — if the two ever disagree the page blocks deposits.
+      The fee ceiling to read on-chain is <b>feeCap()</b> (500 = 5%); <b>MAX_FEE_BPS()</b> returns 200 because it is the base contract's own constant, which this vault overrides.
+    </div>
   </div>
 
   <div class="flights">
@@ -347,6 +351,29 @@ function updateEta(){
   off.textContent = o ? `${o.time} · ${o.name}` : '—';
   off.className = o && /day/.test(o.time) ? 'num' : '';
   renderFeeNote(mins, o);
+}
+
+// PINNED VAULTS. config.reserve.json is fetched at runtime, so anyone who could
+// swap that file could swap the address people are told to verify. These are
+// baked into the page itself: if the fetched config disagrees, deposits are
+// blocked rather than pointed at an unknown contract.
+// MUST be updated when a lane is redeployed — ops/publish-pages.mjs refuses to
+// publish a config whose vaults do not match these.
+const PINNED = {
+  reserve: { pulse: '0x889dbd293F675F46D7046F95C28287E9f2e2a323', eth: '0x4cd911Ee89aa4b5Fb2E4DdC0084B91bACA4Fff7C' },
+  plsrh:   { pulse: '0xbefA7274b4FbE2604e5aaC8f9Ebf72054c93B293', eth: '0xC4ff1De47627c5C57C0a7F4bc9570d8d87Fa5918' },
+};
+let PINFAIL = false;
+function checkPins(){
+  const p = PINNED[CFG.lane]; if (!p) return;            // a lane with no pin yet
+  for (const slot of ['pulse','eth']) {
+    if (String(CFG[slot]?.vault||'').toLowerCase() !== p[slot].toLowerCase()) {
+      PINFAIL = true;
+      const b = $('prelaunch');
+      if (b) { b.textContent = 'This page is pointing at an unexpected vault address — do not send funds.'; b.classList.add('show'); }
+      return;
+    }
+  }
 }
 
 // Is the relayer refunding the toll on crossings it cannot serve instantly?
@@ -612,6 +639,8 @@ function updateCta(){
   const b=$('cta');
   // pre-launch: the site is up for verification, deposits are hard-disabled
   if(PRELAUNCH){ b.textContent='Deposits open soon — do not send funds'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
+  // a vault address that does not match the one baked into this page
+  if(PINFAIL){ b.textContent='Unexpected vault address — do not send funds'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
   // wrong relay lane (see pollRelay): a deposit from here would never get its voucher
   if(WRONGLANE){ b.textContent='Wrong relay lane — do not send funds'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
   if(cur && cur._feeBps===null){ b.textContent='Toll unreadable — check your connection'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
@@ -627,6 +656,7 @@ function updateCta(){
 // ---------- the crossing ----------
 async function doBridge(){
   if(PRELAUNCH) return toast('Deposits are not open yet — please do not send funds. Check back soon.',true);
+  if(PINFAIL) return toast('This page is pointing at an unexpected vault address — not sending.',true);
   if(WRONGLANE) return toast('This page is pointed at the wrong relay lane — do not send funds.',true);
   if(cur._feeBps===null) return toast('The live toll could not be read from the vault — not sending.',true);
   const b=$('cta'); const raw=$('amount').value.trim();
@@ -828,7 +858,7 @@ async function boot(){
     if(PRELAUNCH) $('prelaunch').classList.add('show');
     $('dir').innerHTML='<option>Loading assets…</option>';
     renderLanes();
-    renderTrust(); renderFeeFlow();
+    checkPins(); renderTrust(); renderFeeFlow();
     await buildDirs();
     renderFlights();
     pollRelay(); setInterval(pollRelay,15000);
