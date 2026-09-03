@@ -7,8 +7,14 @@
 <meta name="description" content="Move small amounts across PulseChain, Ethereum and Robinhood in minutes — paid out of a pre-funded reserve in the same asset, 1:1. The official bridges are cheaper and slower.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2300c26f'/%3E%3Cpath d='M9 21 L16 9 L23 21' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
-  /* Clean-light fintech (WICK v3 tokens). Single committed light world,
-     every color painted explicitly so it holds on any host ground. */
+  /* Clean-light fintech (WICK v3 tokens), now DUAL THEME.
+     Every colour on this page comes from a token defined here — the rest of the
+     stylesheet contains no literal colours except the white spinner, which only
+     ever sits on a coloured button. That is what makes one palette swap enough.
+     Three viewer states are covered: bare :root = light; the prefers-dark media
+     query (guarded so an explicit light choice still wins); and the data-theme
+     stamps the toggle writes. Never declare a colour ONLY inside the dark
+     blocks — it would be undefined for the un-stamped system-light viewer. */
   :root{
     --bg:#eef1f0; --surface:#ffffff; --surface-2:#f5f8f7; --raise:#eef3f0;
     --line:#dde5e0; --line-2:#e7edea;
@@ -19,27 +25,100 @@
     --shadow-lg:0 24px 60px -30px rgba(12,26,19,.35);
     --mono:"SFMono-Regular",ui-monospace,"IBM Plex Mono",Menlo,Consolas,monospace;
     --r:16px;
+    /* derived / component tokens (were literals before the dark pass) */
+    --body-glow:rgba(0,194,111,.10);
+    --header-bg:rgba(238,241,240,.82);
+    --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%235c6f64' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    --placeholder:#b9c6bf;
+    --max-hover:#d7f2e6;
+    --cta-txt:#042; --cta-off-bg:#cfe0d7; --cta-off-txt:#7f948a;
+    --gold-2:#e8b64a; --gold-txt:#3a2a05;
+    --gold-soft:rgba(194,146,42,.14); --gold-line:rgba(194,146,42,.35); --gold-glow:rgba(194,146,42,.6);
+    --glow:rgba(0,194,111,.6); --glow-2:rgba(0,194,111,.28);
+    --acc-line:rgba(0,194,111,.4); --acc-line-2:rgba(0,194,111,.35); --acc-line-3:rgba(0,194,111,.25);
+    --warn-bg:rgba(184,121,27,.08); --warn-line:rgba(184,121,27,.25);
+    --fail-bg:#eef1f0; --bad-bg:#fdeceb; --bad-line:#f2c4bf;
+    --dot-off:#b9c6bf; --step-dot:#d5dfd9; --step-ring:#ffffff;
+    --pre-bg:#fdf3e3; --pre-line:#f0c98a; --pre-txt:#6b4300; --pre-txt-b:#4f3000;
+    --toast-bg:#0c1a13; --toast-txt:#eef3f0; --toast-err:#5a1a14;
+    --splash-bg:#eef1f0;
+  }
+  /* ---- dark palette: one list, applied from both entry points ------------ */
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b1210; --surface:#141d1a; --surface-2:#101815; --raise:#1a2420;
+      --line:#25332c; --line-2:#1e2a25;
+      --txt:#e8f1eb; --muted:#9db0a5; --faint:#74887c;
+      --neon:#00d97b; --neon-d:#37e996; --neon-soft:rgba(0,217,123,.15);
+      --gold:#d9a83c; --danger:#ec7264; --warn:#e2ab4a;
+      --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 30px -18px rgba(0,0,0,.75);
+      --shadow-lg:0 24px 60px -30px rgba(0,0,0,.9);
+      --body-glow:rgba(0,217,123,.08);
+      --header-bg:rgba(11,18,16,.85);
+      --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%239db0a5' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      --placeholder:#5a6d62;
+      --max-hover:rgba(0,217,123,.26);
+      --cta-txt:#04140c; --cta-off-bg:#1e2a25; --cta-off-txt:#6b7d72;
+      --gold-2:#e8c05a; --gold-txt:#241a02;
+      --gold-soft:rgba(217,168,60,.16); --gold-line:rgba(217,168,60,.4); --gold-glow:rgba(217,168,60,.45);
+      --glow:rgba(0,217,123,.45); --glow-2:rgba(0,217,123,.3);
+      --acc-line:rgba(0,217,123,.45); --acc-line-2:rgba(0,217,123,.4); --acc-line-3:rgba(0,217,123,.3);
+      --warn-bg:rgba(226,171,74,.1); --warn-line:rgba(226,171,74,.3);
+      --fail-bg:#1a2420; --bad-bg:rgba(236,114,100,.14); --bad-line:rgba(236,114,100,.4);
+      --dot-off:#4a5c52; --step-dot:#2b3a33; --step-ring:#141d1a;
+      --pre-bg:rgba(226,171,74,.12); --pre-line:rgba(226,171,74,.38); --pre-txt:#f0cd8a; --pre-txt-b:#ffe0a8;
+      --toast-bg:#26332d; --toast-txt:#e8f1eb; --toast-err:#5a1a14;
+      --splash-bg:#0b1210;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1210; --surface:#141d1a; --surface-2:#101815; --raise:#1a2420;
+    --line:#25332c; --line-2:#1e2a25;
+    --txt:#e8f1eb; --muted:#9db0a5; --faint:#74887c;
+    --neon:#00d97b; --neon-d:#37e996; --neon-soft:rgba(0,217,123,.15);
+    --gold:#d9a83c; --danger:#ec7264; --warn:#e2ab4a;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 30px -18px rgba(0,0,0,.75);
+    --shadow-lg:0 24px 60px -30px rgba(0,0,0,.9);
+    --body-glow:rgba(0,217,123,.08);
+    --header-bg:rgba(11,18,16,.85);
+    --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%239db0a5' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    --placeholder:#5a6d62;
+    --max-hover:rgba(0,217,123,.26);
+    --cta-txt:#04140c; --cta-off-bg:#1e2a25; --cta-off-txt:#6b7d72;
+    --gold-2:#e8c05a; --gold-txt:#241a02;
+    --gold-soft:rgba(217,168,60,.16); --gold-line:rgba(217,168,60,.4); --gold-glow:rgba(217,168,60,.45);
+    --glow:rgba(0,217,123,.45); --glow-2:rgba(0,217,123,.3);
+    --acc-line:rgba(0,217,123,.45); --acc-line-2:rgba(0,217,123,.4); --acc-line-3:rgba(0,217,123,.3);
+    --warn-bg:rgba(226,171,74,.1); --warn-line:rgba(226,171,74,.3);
+    --fail-bg:#1a2420; --bad-bg:rgba(236,114,100,.14); --bad-line:rgba(236,114,100,.4);
+    --dot-off:#4a5c52; --step-dot:#2b3a33; --step-ring:#141d1a;
+    --pre-bg:rgba(226,171,74,.12); --pre-line:rgba(226,171,74,.38); --pre-txt:#f0cd8a; --pre-txt-b:#ffe0a8;
+    --toast-bg:#26332d; --toast-txt:#e8f1eb; --toast-err:#5a1a14;
+    --splash-bg:#0b1210;
   }
   *{box-sizing:border-box}
   html{color-scheme:light}
+  @media (prefers-color-scheme: dark){ html:not([data-theme="light"]){color-scheme:dark} }
+  html[data-theme="dark"]{color-scheme:dark}
+  html[data-theme="light"]{color-scheme:light}
   body{
     margin:0; background:var(--bg); color:var(--txt);
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; font-size:16px;
     -webkit-font-smoothing:antialiased;
-    background-image:radial-gradient(720px 380px at 88% -6%, rgba(0,194,111,.10), transparent 60%);
+    background-image:radial-gradient(720px 380px at 88% -6%, var(--body-glow), transparent 60%);
     background-attachment:fixed; min-height:100vh;
   }
   .num{font-family:var(--mono); font-variant-numeric:tabular-nums}
   a{color:var(--neon-d)}
   button{font-family:inherit}
 
-  header{position:sticky; top:0; z-index:9; background:rgba(238,241,240,.82); backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
+  header{position:sticky; top:0; z-index:9; background:var(--header-bg); backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
   .bar{max-width:520px; margin:0 auto; padding:13px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px}
   .brand{display:flex; align-items:center; gap:10px; font-weight:750; letter-spacing:.01em}
-  .logo{width:26px; height:26px; border-radius:7px; background:linear-gradient(150deg,var(--neon),var(--neon-d)); display:grid; place-items:center; box-shadow:0 4px 12px rgba(0,194,111,.28)}
+  .logo{width:26px; height:26px; border-radius:7px; background:linear-gradient(150deg,var(--neon),var(--neon-d)); display:grid; place-items:center; box-shadow:0 4px 12px var(--glow-2)}
   .logo svg{width:16px;height:16px}
   #net{font:600 11px/1 var(--mono); letter-spacing:.04em; color:var(--muted); background:var(--surface-2); border:1px solid var(--line); padding:6px 9px; border-radius:8px}
-  #net.on{color:var(--neon-d); border-color:rgba(0,194,111,.4)}
+  #net.on{color:var(--neon-d); border-color:var(--acc-line)}
 
   main{max-width:520px; margin:0 auto; padding:26px 18px 70px}
   .eyebrow{font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--neon-d); font-weight:700}
@@ -50,18 +129,18 @@
   .leg{background:var(--surface-2); border:1px solid var(--line-2); border-radius:13px; padding:13px 14px}
   .leg + .revwrap{height:0; position:relative}
   .revbtn{position:absolute; left:50%; top:-1px; transform:translate(-50%,-50%); width:38px; height:38px; border-radius:11px; background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow); cursor:pointer; display:grid; place-items:center; color:var(--neon-d); font-size:17px; z-index:2; transition:transform .15s, box-shadow .15s}
-  .revbtn:hover{box-shadow:0 8px 20px -6px rgba(0,194,111,.4); transform:translate(-50%,-50%) rotate(180deg)}
+  .revbtn:hover{box-shadow:0 8px 20px -6px var(--acc-line); transform:translate(-50%,-50%) rotate(180deg)}
   .leglabel{display:flex; justify-content:space-between; font-size:11.5px; letter-spacing:.04em; color:var(--faint); text-transform:uppercase; font-weight:600; margin-bottom:7px}
   .leglabel .bal{text-transform:none; letter-spacing:0; color:var(--muted); font-weight:500}
   .row{display:flex; align-items:center; gap:10px}
   select#dir{flex:1 1 auto; min-width:0; appearance:none; -webkit-appearance:none; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:11px 34px 11px 12px; font:600 14px/1.2 system-ui,sans-serif; color:var(--txt); cursor:pointer;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%235c6f64' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center}
+    background-image:var(--chev); background-repeat:no-repeat; background-position:right 12px center}
   .amtwrap{position:relative; margin-top:11px}
   #amount{width:100%; background:var(--surface); border:1px solid var(--line); border-radius:11px; padding:14px 66px 14px 14px; font:700 24px/1 var(--mono); color:var(--txt); font-variant-numeric:tabular-nums}
   #amount:focus{outline:none; border-color:var(--neon); box-shadow:0 0 0 3px var(--neon-soft)}
-  #amount::placeholder{color:#b9c6bf}
+  #amount::placeholder{color:var(--placeholder)}
   .maxbtn{position:absolute; right:9px; top:50%; transform:translateY(-50%); background:var(--neon-soft); color:var(--neon-d); border:0; border-radius:8px; padding:6px 10px; font:700 12px/1 system-ui; letter-spacing:.05em; cursor:pointer}
-  .maxbtn:hover{background:#d7f2e6}
+  .maxbtn:hover{background:var(--max-hover)}
 
   .recv{display:flex; align-items:baseline; justify-content:space-between; margin-top:11px; padding:2px}
   .recv .v{font:700 22px/1 var(--mono); color:var(--txt)}
@@ -78,17 +157,17 @@
   .info .l span:first-child{color:var(--muted)}
   .info .l span:last-child{color:var(--txt); font-weight:600; text-align:right}
   .info .good{color:var(--neon-d)}
-  .warnbox{margin-top:12px; font-size:12.5px; color:var(--warn); background:rgba(184,121,27,.08); border:1px solid rgba(184,121,27,.25); border-radius:10px; padding:9px 11px; display:none}
+  .warnbox{margin-top:12px; font-size:12.5px; color:var(--warn); background:var(--warn-bg); border:1px solid var(--warn-line); border-radius:10px; padding:9px 11px; display:none}
   .warnbox.show{display:block}
   /* what the fee buys — stated plainly, next to the number */
   .feenote{margin-top:11px; font-size:12.5px; color:var(--muted); background:var(--surface-2); border:1px solid var(--line-2); border-radius:10px; padding:10px 11px; line-height:1.5}
   .feenote b{color:var(--txt)}
 
-  .cta{width:100%; margin-top:15px; padding:15px; border:0; border-radius:13px; background:linear-gradient(180deg,var(--neon),var(--neon-d)); color:#042; font:750 16px/1 system-ui; letter-spacing:.01em; cursor:pointer; box-shadow:0 10px 24px -10px rgba(0,194,111,.6); transition:filter .15s, transform .05s}
+  .cta{width:100%; margin-top:15px; padding:15px; border:0; border-radius:13px; background:linear-gradient(180deg,var(--neon),var(--neon-d)); color:var(--cta-txt); font:750 16px/1 system-ui; letter-spacing:.01em; cursor:pointer; box-shadow:0 10px 24px -10px var(--glow); transition:filter .15s, transform .05s}
   .cta:hover:not(:disabled){filter:brightness(1.04)}
   .cta:active:not(:disabled){transform:translateY(1px)}
-  .cta:disabled{background:#cfe0d7; color:#7f948a; box-shadow:none; cursor:not-allowed}
-  .cta.claim{background:linear-gradient(180deg,#e8b64a,var(--gold)); color:#3a2a05; box-shadow:0 10px 24px -10px rgba(194,146,42,.6)}
+  .cta:disabled{background:var(--cta-off-bg); color:var(--cta-off-txt); box-shadow:none; cursor:not-allowed}
+  .cta.claim{background:linear-gradient(180deg,var(--gold-2),var(--gold)); color:var(--gold-txt); box-shadow:0 10px 24px -10px var(--gold-glow)}
 
   .hint{font-size:12px; color:var(--faint); text-align:center; margin-top:12px; line-height:1.5}
 
@@ -101,12 +180,12 @@
   .flight .dir{font-size:12px; color:var(--muted)}
   .badge{font:700 10.5px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; padding:5px 8px; border-radius:7px}
   .badge.wait{background:var(--surface-2); color:var(--muted); border:1px solid var(--line)}
-  .badge.ready{background:rgba(194,146,42,.14); color:var(--gold); border:1px solid rgba(194,146,42,.35)}
-  .badge.done{background:var(--neon-soft); color:var(--neon-d); border:1px solid rgba(0,194,111,.35)}
-  .badge.failed{background:#eef1f0; color:var(--muted); border:1px solid var(--line)}
-  .badge.suspect{background:#fdeceb; color:var(--danger); border:1px solid #f2c4bf}
+  .badge.ready{background:var(--gold-soft); color:var(--gold); border:1px solid var(--gold-line)}
+  .badge.done{background:var(--neon-soft); color:var(--neon-d); border:1px solid var(--acc-line-2)}
+  .badge.failed{background:var(--fail-bg); color:var(--muted); border:1px solid var(--line)}
+  .badge.suspect{background:var(--bad-bg); color:var(--danger); border:1px solid var(--bad-line)}
   .flight .sub{font-size:12px; color:var(--muted); margin-top:6px; display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap}
-  .flight .claim-btn{margin-top:10px; width:100%; padding:11px; border:0; border-radius:10px; background:linear-gradient(180deg,#e8b64a,var(--gold)); color:#3a2a05; font:700 14px system-ui; cursor:pointer}
+  .flight .claim-btn{margin-top:10px; width:100%; padding:11px; border:0; border-radius:10px; background:linear-gradient(180deg,var(--gold-2),var(--gold)); color:var(--gold-txt); font:700 14px system-ui; cursor:pointer}
   .flight .claim-btn:disabled{opacity:.6; cursor:wait}
   .empty{color:var(--faint); font-size:13px; text-align:center; padding:14px}
 
@@ -115,10 +194,31 @@
 
   /* relay status pill (header) */
   .hdr-right{display:flex; align-items:center; gap:8px}
+  /* theme toggle: same chrome as the other header pills so it reads as one row */
+  .iconbtn{display:grid; place-items:center; width:30px; height:30px; padding:0; background:var(--surface-2); border:1px solid var(--line); border-radius:8px; color:var(--muted); cursor:pointer; transition:color .15s, border-color .15s}
+  .iconbtn:hover{color:var(--neon-d); border-color:var(--acc-line)}
+  .iconbtn svg{width:15px; height:15px; display:block}
+
+  /* splash: one full-bleed cover on the themed ground, faded out on first paint */
+  #splash{position:fixed; inset:0; z-index:100; background:var(--splash-bg); display:grid; place-content:center; justify-items:center; gap:14px; transition:opacity .32s ease}
+  #splash.gone{opacity:0; pointer-events:none}
+  .sp-mark{width:56px; height:56px; border-radius:15px; background:linear-gradient(150deg,var(--neon),var(--neon-d)); display:grid; place-items:center; box-shadow:0 10px 30px -8px var(--glow); animation:spPop .5s cubic-bezier(.2,.9,.3,1.2) both}
+  .sp-mark svg{width:32px; height:32px}
+  .sp-name{font:750 13px/1 system-ui; letter-spacing:.24em; color:var(--muted); animation:spFade .5s .12s both}
+  .sp-bar{width:132px; height:3px; border-radius:99px; background:var(--line-2); overflow:hidden}
+  .sp-bar span{display:block; width:40%; height:100%; border-radius:99px; background:var(--neon); animation:spSlide 1.05s ease-in-out infinite}
+  @keyframes spPop{from{opacity:0; transform:scale(.82)} to{opacity:1; transform:none}}
+  @keyframes spFade{from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:none}}
+  @keyframes spSlide{0%{transform:translateX(-110%)} 100%{transform:translateX(260%)}}
+  @media (prefers-reduced-motion: reduce){
+    .sp-mark,.sp-name{animation:none}
+    .sp-bar span{animation:none; width:100%}
+    #splash{transition:none}
+  }
   #relay{display:inline-flex; align-items:center; gap:6px; font:600 11px/1 var(--mono); color:var(--muted); background:var(--surface-2); border:1px solid var(--line); padding:6px 9px; border-radius:8px}
-  #relay .dot{width:7px; height:7px; border-radius:50%; background:#b9c6bf}
-  #relay.on{color:var(--neon-d); border-color:rgba(0,194,111,.4)} #relay.on .dot{background:var(--neon)}
-  #relay.off{color:var(--danger); border-color:#f2c4bf} #relay.off .dot{background:var(--danger)}
+  #relay .dot{width:7px; height:7px; border-radius:50%; background:var(--dot-off)}
+  #relay.on{color:var(--neon-d); border-color:var(--acc-line)} #relay.on .dot{background:var(--neon)}
+  #relay.off{color:var(--danger); border-color:var(--bad-line)} #relay.off .dot{background:var(--danger)}
 
   /* verify-before-you-send strip */
   .trust{margin-top:14px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:12px 14px; box-shadow:var(--shadow)}
@@ -129,7 +229,7 @@
   .trust a{font-family:var(--mono); font-size:12px; color:var(--neon-d); text-decoration:none; font-weight:600}
   .trust a:hover{text-decoration:underline}
   .pills{display:flex; flex-wrap:wrap; gap:6px; margin-top:9px}
-  .pill{font:600 11px/1 system-ui; color:var(--neon-d); background:var(--neon-soft); border:1px solid rgba(0,194,111,.25); padding:5px 8px; border-radius:999px}
+  .pill{font:600 11px/1 system-ui; color:var(--neon-d); background:var(--neon-soft); border:1px solid var(--acc-line-3); padding:5px 8px; border-radius:999px}
 
   /* how it works */
   .how{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:22px}
@@ -142,7 +242,7 @@
   /* per-crossing progress stepper + explorer links */
   .steps{display:flex; align-items:center; margin-top:10px}
   .steps .s{display:flex; align-items:center; gap:5px; font-size:11px; color:var(--faint); font-weight:600; white-space:nowrap}
-  .steps .s .d{width:9px; height:9px; border-radius:50%; background:#d5dfd9; box-shadow:0 0 0 2px #fff, 0 0 0 3px var(--line-2)}
+  .steps .s .d{width:9px; height:9px; border-radius:50%; background:var(--step-dot); box-shadow:0 0 0 2px var(--step-ring), 0 0 0 3px var(--line-2)}
   .steps .s.done{color:var(--neon-d)} .steps .s.done .d{background:var(--neon)}
   .steps .s.now{color:var(--gold)} .steps .s.now .d{background:var(--gold)}
   .steps .bar2{flex:1 1 auto; height:2px; background:var(--line-2); margin:0 6px; min-width:8px}
@@ -155,21 +255,38 @@
   .lanes{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 16px}
   .lanes a,.lanes .cur{font:600 12px/1 system-ui; padding:7px 11px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--muted); text-decoration:none}
   .lanes a:hover{color:var(--txt); border-color:var(--neon)}
-  .lanes .cur{background:var(--neon-soft); color:var(--neon-d); border-color:rgba(0,194,111,.35)}
+  .lanes .cur{background:var(--neon-soft); color:var(--neon-d); border-color:var(--acc-line-2)}
 
   /* pre-launch gate: the site is live, deposits are not (config.preLaunch) */
-  .prelaunch{display:none; margin:0 0 18px; padding:13px 15px; border-radius:13px; background:#fdf3e3; border:1px solid #f0c98a; color:#6b4300; font-size:14px; line-height:1.5; box-shadow:var(--shadow)}
+  .prelaunch{display:none; margin:0 0 18px; padding:13px 15px; border-radius:13px; background:var(--pre-bg); border:1px solid var(--pre-line); color:var(--pre-txt); font-size:14px; line-height:1.5; box-shadow:var(--shadow)}
   .prelaunch.show{display:block}
-  .prelaunch b{color:#4f3000}
+  .prelaunch b{color:var(--pre-txt-b)}
 
-  #toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%); max-width:90vw; background:#0c1a13; color:#eef3f0; padding:12px 16px; border-radius:11px; font-size:13.5px; box-shadow:var(--shadow-lg); display:none; z-index:50}
-  #toast.err{background:#5a1a14}
+  #toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%); max-width:90vw; background:var(--toast-bg); color:var(--toast-txt); padding:12px 16px; border-radius:11px; font-size:13.5px; box-shadow:var(--shadow-lg); display:none; z-index:50}
+  #toast.err{background:var(--toast-err)}
   .spin{display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px; margin-right:6px}
   @keyframes sp{to{transform:rotate(360deg)}}
   @media(max-width:400px){ #amount{font-size:20px} }
 </style>
+<script>
+// Runs BEFORE the body paints: stamps the stored theme so a dark-mode visitor
+// never sees a white flash. Wrapped because localStorage throws outright in
+// some privacy modes — a storage failure must not stop the page loading.
+try{ var _t=localStorage.getItem('wb_theme'); if(_t==='dark'||_t==='light') document.documentElement.setAttribute('data-theme',_t); }catch(e){}
+// FAILSAFE: whatever happens to the main script, the splash comes off. A cover
+// that outlives a JS error would hide a working bridge behind a blank screen.
+setTimeout(function(){ var s=document.getElementById('splash'); if(s&&!s.classList.contains('gone')){ s.classList.add('gone'); setTimeout(function(){ s.remove(); },400); } },2500);
+</script>
 </head>
 <body>
+<!-- Splash: painted from the theme tokens so it can never flash the wrong
+     ground, and removed by JS on first paint (plus a hard 2.5s failsafe in the
+     inline boot script, so a JS error can never leave the site behind a cover). -->
+<div id="splash" aria-hidden="true">
+  <div class="sp-mark"><svg viewBox="0 0 32 32"><path d="M8 22 L16 8 L24 22" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <div class="sp-name">WICK BRIDGE</div>
+  <div class="sp-bar"><span></span></div>
+</div>
 <header>
   <div class="bar">
     <div class="brand">
@@ -178,6 +295,9 @@
     </div>
     <div class="hdr-right">
       <span id="relay" title="Relay status"><span class="dot"></span><span id="relayTxt">relay…</span></span>
+      <button id="themeBtn" class="iconbtn" type="button" title="Switch theme" aria-label="Switch between light and dark">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path id="themeIcon" fill="currentColor" d=""/></svg>
+      </button>
       <button id="net" title="Connect wallet">Connect</button>
     </div>
   </div>
@@ -871,8 +991,47 @@ async function boot(){
   }catch(e){
     $('card').innerHTML=`<div class="empty" style="padding:30px 14px">Bridge configuration unavailable.<br><span style="color:var(--faint)">${(e.message||e)}</span><br><br>The reserve lane may not be published yet.</div>`;
     $('cta')?.remove();
+  }finally{
+    // The splash comes off whether boot SUCCEEDED or FAILED — the failure state
+    // is a message the user needs to read, not something to hide.
+    hideSplash();
   }
 }
+
+// ---------- theme ----------
+// Three states, matching the CSS: an explicit data-theme stamp wins; with no
+// stamp the OS preference decides. The toggle always flips whatever is being
+// rendered right now, so one click does what the user expects either way.
+const SUN='M12 17a5 5 0 100-10 5 5 0 000 10zm0-13.5a1 1 0 011 1V6a1 1 0 01-2 0V4.5a1 1 0 011-1zm0 14a1 1 0 011 1V20a1 1 0 01-2 0v-1.5a1 1 0 011-1zM4.5 11h1.5a1 1 0 010 2H4.5a1 1 0 010-2zm13.5 0h1.5a1 1 0 010 2H18a1 1 0 010-2zM6.3 5a1 1 0 011.4 0l1.1 1a1 1 0 01-1.4 1.5l-1-1.1A1 1 0 016.3 5zm9.9 9.9a1 1 0 011.4 0l1.1 1a1 1 0 01-1.4 1.5l-1-1.1a1 1 0 01-.1-1.4zM17.7 5a1 1 0 010 1.4l-1 1.1A1 1 0 015.2 6.1l1-1.1a1 1 0 011.5 0zM7.8 14.9a1 1 0 010 1.4l-1 1.1a1 1 0 01-1.5-1.4l1-1.1a1 1 0 011.5 0z';
+const MOON='M20.3 14.9A8.5 8.5 0 019.1 3.7a1 1 0 00-1.3-1.2 10 10 0 1013.7 13.7 1 1 0 00-1.2-1.3z';
+function themeNow(){
+  const a=document.documentElement.getAttribute('data-theme');
+  if(a==='dark'||a==='light') return a;
+  try{ return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'; }catch{ return 'light'; }
+}
+function paintThemeIcon(){
+  const i=$('themeIcon'); if(!i) return;
+  const dark = themeNow()==='dark';
+  // show the destination, not the current state: a moon means "go dark"
+  i.setAttribute('d', dark?SUN:MOON);
+  $('themeBtn')?.setAttribute('title', dark?'Switch to light':'Switch to dark');
+}
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  try{ localStorage.setItem('wb_theme',t); }catch{}
+  paintThemeIcon();
+}
+$('themeBtn')?.addEventListener('click',()=>setTheme(themeNow()==='dark'?'light':'dark'));
+// follow the OS while the viewer has made no explicit choice
+try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ if(!document.documentElement.getAttribute('data-theme')) paintThemeIcon(); }); }catch{}
+paintThemeIcon();
+
+function hideSplash(){
+  const s=$('splash'); if(!s||s.classList.contains('gone')) return;
+  s.classList.add('gone');
+  setTimeout(()=>s.remove(),400);
+}
+
 boot();
 </script>
 </body>
