@@ -9,11 +9,6 @@
       "href": "/"
     },
     {
-      "key": "rh",
-      "label": "Ethereum ⇄ Robinhood",
-      "href": "/rh/"
-    },
-    {
       "key": "plsrh",
       "label": "PulseChain ⇄ Robinhood",
       "href": "/plsrh/"
