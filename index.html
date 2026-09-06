@@ -799,7 +799,7 @@ async function waitReceipt(rpcUrl, hash, tries=120){
 function updateCta(){
   const b=$('cta');
   // pre-launch: the site is up for verification, deposits are hard-disabled
-  if(PRELAUNCH){ b.textContent='Deposits open soon — do not send funds'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
+  if(PRELAUNCH){ b.textContent=(CFG && CFG.noticeCta) || 'Deposits open soon — do not send funds'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
   // a vault address that does not match the one baked into this page
   if(PINFAIL){ b.textContent='Unexpected vault address — do not send funds'; b.disabled=true; b.className='cta'; b.onclick=null; return; }
   // wrong relay lane (see pollRelay): a deposit from here would never get its voucher
@@ -816,7 +816,7 @@ function updateCta(){
 
 // ---------- the crossing ----------
 async function doBridge(){
-  if(PRELAUNCH) return toast('Deposits are not open yet — please do not send funds. Check back soon.',true);
+  if(PRELAUNCH) return toast((CFG && CFG.notice) || 'Deposits are not open yet — please do not send funds. Check back soon.',true);
   if(PINFAIL) return toast('This page is pointing at an unexpected vault address — not sending.',true);
   if(WRONGLANE) return toast('This page is pointed at the wrong relay lane — do not send funds.',true);
   if(cur._feeBps===null) return toast('The live quote could not be read from the vault — not sending.',true);
@@ -1027,8 +1027,16 @@ async function boot(){
     if(!r.ok) throw new Error('config.reserve.json not found ('+r.status+')');
     CFG=await r.json();
     if(CFG.mode!=='reserve') throw new Error('config is not a reserve config');
+    // The pre-launch gate doubles as the MAINTENANCE gate: it shows a banner and
+    // hard-disables deposits, which is exactly what you want while a relayer is
+    // down — a deposit taken now would sit unvouchered until it comes back.
+    // cfg.notice overrides the wording; textContent, never innerHTML, so the
+    // banner can never become an injection point.
     PRELAUNCH = CFG.preLaunch===true;
-    if(PRELAUNCH) $('prelaunch').classList.add('show');
+    if(PRELAUNCH){
+      const p=$('prelaunch');
+      if(p){ if(typeof CFG.notice==='string' && CFG.notice) p.textContent=CFG.notice; p.classList.add('show'); }
+    }
     $('dir').innerHTML='<option>Loading assets…</option>';
     renderLanes();
     checkPins(); renderTrust(); renderFeeFlow();
