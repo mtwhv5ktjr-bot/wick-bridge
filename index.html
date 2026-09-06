@@ -941,7 +941,15 @@ async function claimFlight(lockTx, btn){
     // Pre-simulate: a release the reserve cannot cover yet reverts EXCEEDS_LOCKED
     // (queued, not lost). Catch it here so the user never pays gas for it.
     try{ await rpc(slot.rpc,'eth_call',[{from:account,to:f.voucher.target,data:f.voucher.calldata},'latest']); }
-    catch(e){ throw new Error('Not claimable right now — the destination reserve is short, so this release is queued (or it was already claimed). It clears as inventory replenishes; try again later. No gas was spent.'); }
+    catch(e){
+      const raw = String(e && (e.message || e));
+      if(/EXCEEDS_LOCKED/i.test(raw))  throw new Error('Not claimable yet — the destination reserve is short, so this release is queued. It clears as inventory replenishes. No gas was spent.');
+      if(/RELEASE_CAP/i.test(raw))     throw new Error('Not claimable yet — this crossing is above the current per-window limit. It clears shortly. No gas was spent.');
+      if(/ALREADY_RELEASED/i.test(raw))throw new Error('Already claimed — these funds have been paid out. No gas was spent.');
+      if(/BAD_SIG/i.test(raw))         throw new Error('This voucher was refused by the vault (BAD_SIG). Reload the page to fetch a fresh one; if it persists, contact support. No gas was spent.');
+      if(/PAUSED/i.test(raw))          throw new Error('The bridge is paused right now. Your funds are safe and claimable once it resumes. No gas was spent.');
+      throw new Error('Could not simulate the claim: ' + raw.slice(0,160) + ' — no gas was spent.');
+    }
     const cx=await sendTx({from:account,to:f.voucher.target,data:f.voucher.calldata});
     updateFlight(lockTx,{claimTx:cx});   // persist the hash the instant it exists (reload-safe; prevents a duplicate claim)
     toast('Claim submitted…');
@@ -975,7 +983,7 @@ async function pollVouchers(){
         // alone is not enough.
         if(!voucherOk(v,f)){ if(f.status!=='suspect') updateFlight(f.lockTx,{status:'suspect'}); continue; }
         if(v.claimed && f.status!=='done') updateFlight(f.lockTx,{status:'done',voucher:v});
-        else if(!v.claimed && (f.status==='wait'||f.status==='suspect')) updateFlight(f.lockTx,{status:'ready',voucher:v});
+        else if(!v.claimed) updateFlight(f.lockTx,{status:'ready',voucher:v});
         else if(v.calldata && (!f.voucher||!f.voucher.calldata)) updateFlight(f.lockTx,{voucher:v});
       }
       // ADOPT vouchers this browser has no flight for — a deposit that was
