@@ -60,5 +60,8 @@
       "symbol": "ETH",
       "decimals": 18
     }
-  }
+  },
+  "preLaunch": true,
+  "notice": "⚠ Closed for maintenance — back shortly! Deposits are disabled while we work. Nothing is at risk: the reserves are untouched and any crossing already made will be honoured.",
+  "noticeCta": "Closed for maintenance — back shortly"
 }
