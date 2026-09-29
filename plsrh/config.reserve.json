@@ -4,14 +4,9 @@
   "lane": "plsrh",
   "lanes": [
     {
-      "key": "reserve",
-      "label": "PulseChain ⇄ Ethereum",
-      "href": "/"
-    },
-    {
       "key": "plsrh",
       "label": "PulseChain ⇄ Robinhood",
-      "href": "/plsrh/"
+      "href": "/"
     }
   ],
   "relayerApi": "https://bridge-relay.wick.pics/plsrh",
