@@ -1,0 +1,59 @@
+{
+  "title": "WICK BRIDGE // ROBINHOOD TOKENS",
+  "lane": "rhwrap",
+  "mode": "mint",
+  "allowNative": false,
+  "hideToll": true,
+  "timelocked": false,
+  "heroTitle": "Robinhood tokens, now on PulseChain.",
+  "heroAccent": "PulseChain",
+  "relayerApi": "https://bridge-relay.wick.pics/rhwrap",
+  "tokens": [
+    {
+      "symbol": "RVH",
+      "name": "Ravenhood",
+      "address": "0x96765066f6a040a21EB027167D2315B707c82633",
+      "decimals": 18
+    },
+    {
+      "symbol": "SAIYAN",
+      "name": "Super Saiyan",
+      "address": "0xd242d6CC65eA378D3eD99FBf82Ef8784D9cF9ff6",
+      "decimals": 18
+    },
+    {
+      "symbol": "KINDRA",
+      "name": "Kindra by Virtuals",
+      "address": "0xE44951407D2ed8E73dce4b7002908732BC0d0bC3",
+      "decimals": 18
+    }
+  ],
+  "pulse": {
+    "name": "Robinhood Chain",
+    "short": "RH",
+    "chainId": 4663,
+    "rpc": "https://rpc.mainnet.chain.robinhood.com",
+    "vault": "0x44a211a09a049bCE729aaB1d6dD17b0a4E751508",
+    "explorer": "https://robinhoodchain.blockscout.com",
+    "blockSec": 0.1,
+    "currency": {
+      "name": "Ether",
+      "symbol": "ETH",
+      "decimals": 18
+    }
+  },
+  "eth": {
+    "name": "PulseChain",
+    "short": "PULSE",
+    "chainId": 369,
+    "rpc": "https://rpc.pulsechain.com",
+    "minter": "0x0a0b9881830eEd7C71Db000FfB28CCfD5958eEd0",
+    "explorer": "https://scan.pulsechain.com",
+    "blockSec": 10,
+    "currency": {
+      "name": "Pulse",
+      "symbol": "PLS",
+      "decimals": 18
+    }
+  }
+}
