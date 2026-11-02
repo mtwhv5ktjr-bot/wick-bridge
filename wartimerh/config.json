@@ -1,0 +1,47 @@
+{
+  "title": "WICK BRIDGE // WARTIME TO ROBINHOOD",
+  "lane": "wartimerh",
+  "mode": "mint",
+  "allowNative": false,
+  "hideToll": true,
+  "timelocked": false,
+  "heroTitle": "WARTIME, now on Robinhood.",
+  "heroAccent": "Robinhood",
+  "relayerApi": "https://bridge-relay.wick.pics/wartimerh",
+  "tokens": [
+    {
+      "symbol": "WARTIME",
+      "name": "WARTIME",
+      "address": "0x85bff9e86865B3ea8B9f59eb60e20eC5c6d21cee",
+      "decimals": 18
+    }
+  ],
+  "pulse": {
+    "name": "PulseChain",
+    "short": "PULSE",
+    "chainId": 369,
+    "rpc": "https://rpc.pulsechain.com",
+    "vault": "0xFD2662c56c9Bf264Cd71333D332CcaDF61ec0E99",
+    "explorer": "https://scan.pulsechain.com",
+    "blockSec": 10,
+    "currency": {
+      "name": "Pulse",
+      "symbol": "PLS",
+      "decimals": 18
+    }
+  },
+  "eth": {
+    "name": "Robinhood Chain",
+    "short": "RH",
+    "chainId": 4663,
+    "rpc": "https://rpc.mainnet.chain.robinhood.com",
+    "minter": "0x6EB8DaB85f15D375401cbaB79A09487A2eeEbF2f",
+    "explorer": "https://robinhoodchain.blockscout.com",
+    "blockSec": 0.1,
+    "currency": {
+      "name": "Ether",
+      "symbol": "ETH",
+      "decimals": 18
+    }
+  }
+}
